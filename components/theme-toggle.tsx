@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const isDark = resolvedTheme !== "light";
+  // Label is constant so server and client HTML match; icons switch via CSS.
   return (
     <Button
       variant="ghost"
       size="icon-sm"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      title={isDark ? "Light mode" : "Dark mode"}
+      onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
+      aria-label="Toggle light/dark mode"
+      title="Toggle light/dark mode"
     >
       <Sun className="hidden size-4 dark:block" />
       <Moon className="size-4 dark:hidden" />
