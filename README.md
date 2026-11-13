@@ -125,8 +125,7 @@ All 16 catalog games now have confirmed scoring. Noillirk is points (0–100000,
 Daily Holes is golf-style relative to par (−30 to +100, lowest wins), and Eraly is points out of
 700 (highest wins). **Range Squeeze** and **Play Plain** are points scored, but I couldn't find
 their real maximums, so the max is 100000. Every catalog game links to its official site (confirmed by the league owner). Several of
-these games have copycat sites, so the links point to the originals (for example Noillirk at
-playdaily.org/noillirk and Daily Holes at dailyholes.com).
+these games have copycat sites, so the links point to the originals (for example Daily Holes at dailyholes.com).
 
 ## Design
 

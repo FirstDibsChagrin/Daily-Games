@@ -164,7 +164,7 @@ export const CATALOG: CatalogGame[] = [
     direction: "higher_is_better",
     allow_fail: false,
     unit_label: "pts",
-    url: "https://playdaily.org/noillirk",
+    url: "https://noillirk.com/",
     color: "#14b8a6",
     verified: true,
     note: "Confirmed by the league owner: points, highest wins (capped at 100000).",
