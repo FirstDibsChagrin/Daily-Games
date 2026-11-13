@@ -20,8 +20,7 @@ export default async function GamesSettingsPage({
   if (!ctx.me.isCreator) redirect(`/l/${slug}/league`);
 
   const sql = db();
-  const [catalogRows, counts, suggestions] = await Promise.all([
-    sql<{ key: string; verified: boolean }[]>`select key, verified from catalog_games`,
+  const [counts, suggestions] = await Promise.all([
     sql<{ game_id: string; n: number }[]>`
       select game_id, count(*)::int as n from scores where league_id = ${ctx.league.id} group by game_id`,
     sql<
@@ -38,11 +37,8 @@ export default async function GamesSettingsPage({
       from game_suggestions s left join members m on m.id = s.member_id
       where s.league_id = ${ctx.league.id} and s.status = 'pending' order by s.created_at`,
   ]);
-  const inDb = new Map(catalogRows.map((r) => [r.key, r.verified]));
-  const catalog = CATALOG.filter((c) => inDb.has(c.key)).map((c) => ({
-    ...c,
-    verified: inDb.get(c.key)!,
-  }));
+  // The catalog comes straight from code (lib/catalog-data.ts), so new games appear on deploy.
+  const catalog = CATALOG;
   const scoreCounts = Object.fromEntries(counts.map((c) => [c.game_id, c.n]));
 
   return (

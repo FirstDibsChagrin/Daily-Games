@@ -64,10 +64,20 @@ export async function addCatalogGames(input: {
     let order = await nextSortOrder(me.leagueId);
     for (const key of keys) {
       const g = CATALOG.find((c) => c.key === key);
-      const [dbRow] = await sql<
-        { key: string }[]
-      >`select key from catalog_games where key = ${key}`;
-      if (!g || !dbRow) continue;
+      if (!g) continue;
+      // The code is the source of truth for the catalog: make sure its row exists (and is
+      // current) before a league copies it, so new catalog games work without a reseed.
+      await sql`
+        insert into catalog_games (key, name, entry_prompt, entry_example, input_type, min, max,
+          direction, allow_fail, unit_label, url, color, verified, note)
+        values (${g.key}, ${g.name}, ${g.entry_prompt}, ${g.entry_example}, ${g.input_type}, ${g.min},
+          ${g.max}, ${g.direction}, ${g.allow_fail}, ${g.unit_label}, ${g.url}, ${g.color},
+          ${g.verified}, ${g.note})
+        on conflict (key) do update set name = excluded.name, entry_prompt = excluded.entry_prompt,
+          entry_example = excluded.entry_example, input_type = excluded.input_type,
+          min = excluded.min, max = excluded.max, direction = excluded.direction,
+          allow_fail = excluded.allow_fail, unit_label = excluded.unit_label, url = excluded.url,
+          color = excluded.color, verified = excluded.verified, note = excluded.note`;
       const existing = await sql<{ id: string; archived_at: Date | null }[]>`
         select id, archived_at from league_games where league_id = ${me.leagueId} and catalog_key = ${key}
         order by archived_at nulls first limit 1`;

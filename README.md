@@ -121,11 +121,16 @@ copy, so creators can edit theirs in-app (League → Manage games).
 
 ## Catalog notes
 
-All 16 catalog games now have confirmed scoring. Noillirk is points (0–100000, highest wins),
-Daily Holes is golf-style relative to par (−30 to +100, lowest wins), and Eraly is points out of
-700 (highest wins). **Range Squeeze** and **Play Plain** are points scored, but I couldn't find
-their real maximums, so the max is 100000. Every catalog game links to its official site (confirmed by the league owner). Several of
-these games have copycat sites, so the links point to the originals (for example Daily Holes at dailyholes.com).
+The catalog has 23 games. The code (`lib/catalog-data.ts`) is the source of truth: the
+games screen lists games from the code, and a game's database row is created or refreshed
+when a league adds it, so a newly added catalog game works as soon as the site deploys.
+
+Three games are tagged **unverified** because their results screens couldn't be confirmed:
+**Moonshot** (points; the real maximum is unknown, so the max is 10000), **Pyralinks** (scored
+as guesses used, lower wins) and **Layers** (scored as mistakes on the final board, 0–3, lower
+wins). Creators can edit any field in-app. **Range Squeeze** and **Play Plain** are points
+scored, but I couldn't find their real maximums, so the max is 100000. Every catalog game
+links to its official site.
 
 ## Design
 

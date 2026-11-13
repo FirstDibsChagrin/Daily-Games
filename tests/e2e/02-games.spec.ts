@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addCatalogGames, card, createLeague, joinLeague, resetThrottles } from "./helpers";
+import { addCatalogGames, card, createLeague, joinLeague, resetThrottles, sql } from "./helpers";
 
 test.beforeEach(resetThrottles);
 
@@ -13,8 +13,11 @@ test("creator manages games: checklist, custom, edit, reorder, archive/restore, 
   const t0 = Date.now();
   await addCatalogGames(page, slug, ["Wordle", "Connections", "Krillion", "Waffle", "Chainle"]);
   expect(Date.now() - t0).toBeLessThan(60_000);
-  // Owner-confirmed scoring for the former "unverified" games
-  await expect(page.locator('[data-testid="catalog-list"]').getByText("unverified")).toHaveCount(0);
+  // Confirmed games carry no tag; games with unconfirmed scoring are tagged
+  const catalogItem = (n: string) =>
+    page.locator('[data-testid="catalog-list"] li', { hasText: n }).first();
+  await expect(catalogItem("Noillirk").getByText("unverified")).toHaveCount(0);
+  await expect(catalogItem("Pyralinks").getByText("unverified")).toBeVisible();
   await expect(
     page.locator('[data-testid="catalog-list"] li', { hasText: "Daily Holes" }),
   ).toContainText("relative to par");
@@ -40,6 +43,7 @@ test("creator manages games: checklist, custom, edit, reorder, archive/restore, 
   await row.getByRole("button", { name: "Move Chainle up" }).click();
   await page.waitForTimeout(800);
   await page.goto(`/l/${slug}/today`);
+  await expect(card(page, "Wordle")).toBeVisible();
   const order = await page
     .locator("[data-testid^=game-card-]")
     .filter({ visible: true })
@@ -103,4 +107,25 @@ test("creator manages games: checklist, custom, edit, reorder, archive/restore, 
   await page.click('button:has-text("Approve & add game")');
   await expect(page.getByTestId("game-row-Gridlock")).toBeVisible();
   await expect(page.getByTestId("suggestion")).toHaveCount(0);
+});
+
+test("catalog games added in code work even before the database catalog is reseeded", async ({
+  page,
+}) => {
+  // Simulate a deploy that added a game to lib/catalog-data.ts without reseeding the database
+  await sql`delete from catalog_games where key = 'globle'`;
+  const slug = await createLeague(page, "New Games League", "Jack", "1234");
+  await addCatalogGames(page, slug, ["Globle", "Spotle", "Farflung"]);
+  await page.goto(`/l/${slug}/today`);
+  await expect(
+    card(page, "Globle").getByText("Enter how many guesses it took you to find the country.", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await expect(card(page, "Globle").getByRole("link", { name: /Play Globle/ })).toHaveAttribute(
+    "href",
+    "https://globle-game.com/",
+  );
+  const [row] = await sql`select url from catalog_games where key = 'globle'`;
+  expect(row.url).toBe("https://globle-game.com/");
 });
