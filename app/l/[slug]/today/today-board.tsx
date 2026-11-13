@@ -143,7 +143,7 @@ export function TodayBoard({
       toast.success(`You're in 1st on ${n}.`);
       void celebrate("first");
     }
-    router.refresh();
+    // Fresh data arrives with the action response (revalidatePath); no extra refresh needed.
   }
 
   async function remove(g: TodayGame) {
@@ -153,7 +153,7 @@ export function TodayBoard({
     setBusy((b) => ({ ...b, [g.id]: false }));
     if (!res.ok) return toast.error(res.error);
     setDrafts((d) => ({ ...d, [g.id]: "" }));
-    router.refresh();
+    // Fresh data arrives with the action response (revalidatePath); no extra refresh needed.
     toast(`Removed your ${g.name} score`, {
       action: prev
         ? {
@@ -174,7 +174,7 @@ export function TodayBoard({
                   delete c[g.id];
                   return c;
                 });
-                router.refresh();
+                // Fresh data arrives with the action response (revalidatePath); no extra refresh needed.
               }
             },
           }
@@ -494,7 +494,6 @@ function DayBoard({ game: g, meId }: { game: TodayGame; meId: string }) {
           {g.entries.map((e) => (
             <motion.li
               key={e.memberId}
-              layout
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

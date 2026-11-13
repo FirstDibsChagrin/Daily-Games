@@ -88,7 +88,7 @@ export default async function StandingsPage({
 
   return (
     <>
-      <AutoRefresh seconds={45} />
+      <AutoRefresh seconds={90} />
       <PageTitle
         title="Standings"
         subtitle={

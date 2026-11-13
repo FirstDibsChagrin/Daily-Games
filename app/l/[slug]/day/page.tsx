@@ -39,7 +39,7 @@ export default async function DayPage({ params, searchParams }: PageProps<"/l/[s
 
   return (
     <>
-      <AutoRefresh seconds={45} />
+      <AutoRefresh seconds={90} />
       <PageTitle
         title={date === today ? "Today's results" : formatDay(date)}
         subtitle={formatDay(date, { year: true })}

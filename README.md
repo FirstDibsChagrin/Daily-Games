@@ -169,7 +169,7 @@ Decisions I made where the spec was silent:
   Golf-style games have a ± key because phone number pads lack a minus. Past days go back to
   2000-01-01; future days are always rejected on the server.
 - **The keep-alive cron** runs once a day (Hobby plans allow daily crons).
-- **PWA**: the service worker only enables install and shows an offline notice. It never
-  caches scores, so data is always live.
+- **PWA**: installable from its manifest (Add to Home Screen). There's deliberately no service
+  worker: an earlier one could stop pages loading in Safari, so it now removes itself.
 - **No starter games** are added on league creation. The creator lands on the games screen with
   a welcome note.

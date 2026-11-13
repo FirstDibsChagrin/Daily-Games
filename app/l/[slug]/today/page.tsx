@@ -76,7 +76,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/l/
 
   return (
     <>
-      <AutoRefresh seconds={30} />
+      <AutoRefresh seconds={60} />
       <TodayBoard slug={slug} date={date} today={today} meId={ctx.me.memberId} games={games} />
     </>
   );

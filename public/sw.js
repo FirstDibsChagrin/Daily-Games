@@ -1,16 +1,14 @@
-// Minimal service worker: makes the app installable. Network-first, no caching of
-// pages (scores must always be live); shows a tiny offline page if the network is down.
+// Retired service worker.
+// An earlier version intercepted page loads, which some browsers (notably Safari) can
+// refuse when a page redirects. This version has no fetch handler: it unregisters itself
+// and reloads any open tabs so they load straight from the network.
 self.addEventListener("install", () => self.skipWaiting());
-self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
-self.addEventListener("fetch", (event) => {
-  if (event.request.mode !== "navigate") return;
-  event.respondWith(
-    fetch(event.request).catch(
-      () =>
-        new Response(
-          '<!doctype html><meta name="viewport" content="width=device-width"><body style="font-family:system-ui;background:#090c16;color:#e9ecf8;display:grid;place-items:center;height:100vh;margin:0"><div style="text-align:center"><h1>You\'re offline</h1><p>Daily League needs a connection to load live scores.</p></div>',
-          { headers: { "Content-Type": "text/html" } },
-        ),
-    ),
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      await self.registration.unregister();
+      const clients = await self.clients.matchAll({ type: "window" });
+      for (const client of clients) client.navigate(client.url);
+    })(),
   );
 });
