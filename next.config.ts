@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   // so we use the classic dynamic rendering model instead of Cache Components.
   cacheComponents: false,
   poweredByHeader: false,
+  // Lets the e2e suite build into its own folder without touching the dev build.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   turbopack: {
     rules: {
       "*.css": {

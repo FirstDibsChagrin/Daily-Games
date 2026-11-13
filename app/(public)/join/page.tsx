@@ -11,7 +11,7 @@ export default async function JoinPage({ searchParams }: PageProps<"/join">) {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-md px-4 pb-16">
+      <main id="main" className="mx-auto w-full max-w-md px-4 pb-16">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Join a league</CardTitle>

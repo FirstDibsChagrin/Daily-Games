@@ -26,7 +26,9 @@ export default async function LeagueLayout({ children, params }: LayoutProps<"/l
           <ThemeToggle />
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-4 pb-28 md:pb-12">{children}</main>
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-4 pb-28 md:pb-12">
+        {children}
+      </main>
       <BottomTabs slug={slug} />
     </div>
   );

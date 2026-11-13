@@ -199,16 +199,23 @@ export function TodayBoard({
             {games.length} logged
           </p>
         </div>
-        {navigating && (
-          <Loader2 className="text-muted-foreground size-5 animate-spin" aria-label="Loading" />
-        )}
+        <div className="flex items-center gap-2">
+          {navigating && (
+            <Loader2 className="text-muted-foreground size-5 animate-spin" aria-label="Loading" />
+          )}
+          <input
+            type="date"
+            max={today}
+            value={date}
+            onChange={(e) => e.target.value && e.target.value <= today && go(e.target.value)}
+            className="border-input bg-card/60 text-foreground h-10 cursor-pointer rounded-lg border px-2 text-sm"
+            aria-label="Pick a date"
+          />
+        </div>
       </div>
 
       {/* 7-day strip + date picker */}
-      <nav
-        aria-label="Choose a day"
-        className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1"
-      >
+      <nav aria-label="Choose a day" className="grid grid-cols-7 gap-1 sm:flex sm:gap-1.5">
         {days.map((d) => {
           const active = d === date;
           return (
@@ -219,9 +226,9 @@ export function TodayBoard({
               aria-current={active ? "date" : undefined}
               aria-label={formatDay(d, { year: true })}
               className={cn(
-                "flex min-w-12 cursor-pointer flex-col items-center rounded-lg border px-2 py-1.5 text-xs transition-colors",
+                "flex min-w-0 cursor-pointer flex-col items-center rounded-lg border px-1 py-1.5 text-[11px] transition-colors sm:min-w-14 sm:px-2 sm:text-xs",
                 active
-                  ? "border-ring bg-accent-soft text-accent glow font-semibold"
+                  ? "glow border-ring bg-accent-soft text-accent font-semibold"
                   : "bg-card/60 text-muted-foreground hover:bg-muted",
               )}
             >
@@ -230,17 +237,6 @@ export function TodayBoard({
             </button>
           );
         })}
-        <label className="text-muted-foreground ml-auto flex shrink-0 items-center gap-2 text-xs">
-          <span className="sr-only sm:not-sr-only">Other day</span>
-          <input
-            type="date"
-            max={today}
-            value={date}
-            onChange={(e) => e.target.value && e.target.value <= today && go(e.target.value)}
-            className="border-input bg-card/60 text-foreground h-10 cursor-pointer rounded-lg border px-2 text-sm [color-scheme:inherit]"
-            aria-label="Pick a date"
-          />
-        </label>
       </nav>
 
       {date !== today && (
@@ -349,8 +345,8 @@ function GameCard({
           </h2>
           {saved && !dirty && (
             <span className="bg-success/15 text-success flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
-              <Check className="size-3.5" aria-hidden /> Saved
-              <span className="num ml-0.5">{formatValue(g, saved.value, saved.failed)}</span>
+              <Check className="size-3.5" aria-hidden /> Saved{" "}
+              <span className="num">{formatValue(g, saved.value, saved.failed)}</span>
             </span>
           )}
         </div>
@@ -372,7 +368,7 @@ function GameCard({
           <label htmlFor={inputId} className="sr-only">
             {g.name} score{g.unit_label ? ` (${g.unit_label})` : ""}
           </label>
-          <div className="relative flex-1">
+          <div className="relative min-w-0 flex-1">
             <input
               id={inputId}
               value={draft}

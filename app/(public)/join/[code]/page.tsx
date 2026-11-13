@@ -37,7 +37,7 @@ export default async function JoinCodePage({ params }: PageProps<"/join/[code]">
     return (
       <>
         <SiteHeader />
-        <main className="mx-auto w-full max-w-md px-4 pb-16">
+        <main id="main" className="mx-auto w-full max-w-md px-4 pb-16">
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">Can&apos;t find that league</CardTitle>
@@ -61,7 +61,7 @@ export default async function JoinCodePage({ params }: PageProps<"/join/[code]">
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-md px-4 pb-16">
+      <main id="main" className="mx-auto w-full max-w-md px-4 pb-16">
         <Card>
           <CardHeader>
             <p className="text-accent text-sm font-semibold tracking-widest uppercase">

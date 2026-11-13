@@ -10,7 +10,7 @@ export default async function HomePage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-5xl px-4 pb-16">
+      <main id="main" className="mx-auto w-full max-w-5xl px-4 pb-16">
         <section className="py-8 sm:py-14">
           <p className="font-display text-accent text-sm font-semibold tracking-[0.2em] uppercase">
             Wordle · Connections · and friends

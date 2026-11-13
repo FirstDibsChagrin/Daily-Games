@@ -47,3 +47,4 @@ next-env.d.ts
 .env*.local
 .env
 !.env.example
+/.next-e2e/

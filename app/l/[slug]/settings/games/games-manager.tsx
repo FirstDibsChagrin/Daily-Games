@@ -103,7 +103,7 @@ export function GamesManager({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-start">
-      <div className="grid gap-6">
+      <div className="grid min-w-0 gap-6">
         {suggestions.length > 0 && (
           <SuggestionsInbox
             slug={slug}
@@ -132,7 +132,7 @@ export function GamesManager({
           <ArchivedGames slug={slug} games={archived} scoreCounts={scoreCounts} />
         )}
       </div>
-      <div className="grid gap-6">
+      <div className="grid min-w-0 gap-6">
         <CatalogPicker slug={slug} catalog={catalog} games={games} />
         <div ref={customRef} className="scroll-mt-20">
           <CustomGame slug={slug} prefill={prefill} onDone={() => setPrefill(null)} />
@@ -358,7 +358,7 @@ function SortableGameRow({
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "bg-card rounded-lg border",
+        "bg-card min-w-0 rounded-lg border",
         isDragging && "ring-ring relative z-10 shadow-xl ring-2",
       )}
       data-testid={`game-row-${g.name}`}

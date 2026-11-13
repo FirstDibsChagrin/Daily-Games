@@ -44,7 +44,7 @@ const THEME = {
     grid: "#d7dbea",
     text: "#4f5672",
     surface: "#ffffff",
-    gold: "#a16207",
+    gold: "#854d0e",
   },
 };
 

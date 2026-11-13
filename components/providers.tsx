@@ -3,6 +3,7 @@
 import { MotionConfig } from "motion/react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { Toaster } from "sonner";
+import { ServiceWorkerRegister } from "@/components/sw-register";
 
 function ThemedToaster() {
   const { resolvedTheme } = useTheme();
@@ -24,6 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <MotionConfig reducedMotion="user">
         {children}
         <ThemedToaster />
+        <ServiceWorkerRegister />
       </MotionConfig>
     </ThemeProvider>
   );
