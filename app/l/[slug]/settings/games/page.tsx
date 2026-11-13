@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { redirect } from "next/navigation";
 import { PageTitle } from "@/components/league/bits";
 import { CATALOG } from "@/lib/catalog-data";

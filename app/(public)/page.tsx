@@ -1,5 +1,5 @@
 import { ArrowRight, Crown } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { RankBadge } from "@/components/league/bits";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";

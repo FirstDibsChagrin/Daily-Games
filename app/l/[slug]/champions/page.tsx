@@ -1,6 +1,6 @@
 import { Trophy } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { EmptyState, PageTitle } from "@/components/league/bits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatWeek } from "@/lib/dates";

@@ -1,6 +1,6 @@
 import { CalendarX, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { AutoRefresh } from "@/components/league/auto-refresh";
 import { EmptyState, GameName, PageTitle, RankBadge } from "@/components/league/bits";
 import { StandingsTable } from "@/components/league/standings-table";

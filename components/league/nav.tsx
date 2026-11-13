@@ -1,7 +1,7 @@
 "use client";
 
 import { BarChart3, CalendarCheck, Settings2, Trophy } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { BottomTabs, TopNav } from "@/components/league/nav";
 import { LogoMark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -10,7 +10,7 @@ export default async function LeagueLayout({ children, params }: LayoutProps<"/l
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="bg-background sticky top-0 z-30 border-b">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-stretch gap-3 px-4">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-stretch gap-3 px-4">
           <Link href="/" aria-label="All my leagues" className="flex items-center rounded-sm">
             <LogoMark />
           </Link>
@@ -26,7 +26,7 @@ export default async function LeagueLayout({ children, params }: LayoutProps<"/l
           </div>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-28 md:pb-14">
+      <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-28 md:pb-14">
         {children}
       </main>
       <BottomTabs slug={slug} />

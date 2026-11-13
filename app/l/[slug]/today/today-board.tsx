@@ -3,7 +3,7 @@
 import { CalendarClock, Check, ExternalLink, Hourglass, Loader2, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { deleteScore, saveScores } from "@/app/actions/scores";
 import { FormError } from "@/components/form-bits";
@@ -182,6 +182,40 @@ export function TodayBoard({
     });
   }
 
+  const rowProps = (g: TodayGame) => ({
+    game: g,
+    meId,
+    draft: draftOf(g),
+    dirty: isDirty(g),
+    error: errors[g.id],
+    busy: !!busy[g.id] || savingAll,
+    onDraft: (v: string) => {
+      setDrafts((d) => ({ ...d, [g.id]: v }));
+      setErrors((e) => ({ ...e, [g.id]: undefined }));
+    },
+    onSave: () => submit([{ game: g, failed: false }]),
+    onFail: () => submit([{ game: g, failed: true }]),
+    onDelete: () => remove(g),
+  });
+  const saveAll = () =>
+    startSaveAll(() => submit(dirtyGames.map((game) => ({ game, failed: false }))));
+
+  // Ctrl/Cmd + Enter saves every row you've typed in (desktop shortcut).
+  const saveAllRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    saveAllRef.current = dirtyGames.length ? saveAll : () => {};
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        saveAllRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)), [today]);
   const go = (d: string) =>
     startNav(() => router.push(d === today ? `/l/${slug}/today` : `/l/${slug}/today?date=${d}`));
@@ -256,25 +290,38 @@ export function TodayBoard({
         </p>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* Phones and tablets: one card per game */}
+      <div className="grid gap-4 md:grid-cols-2 lg:hidden">
         {games.map((g) => (
-          <GameCard
-            key={`${date}:${g.id}`}
-            game={g}
-            meId={meId}
-            draft={draftOf(g)}
-            dirty={isDirty(g)}
-            error={errors[g.id]}
-            busy={!!busy[g.id] || savingAll}
-            onDraft={(v) => {
-              setDrafts((d) => ({ ...d, [g.id]: v }));
-              setErrors((e) => ({ ...e, [g.id]: undefined }));
-            }}
-            onSave={() => submit([{ game: g, failed: false }])}
-            onFail={() => submit([{ game: g, failed: true }])}
-            onDelete={() => remove(g)}
-          />
+          <GameCard key={`${date}:${g.id}:card`} variant="card" {...rowProps(g)} />
         ))}
+      </div>
+
+      {/* Computers: a score sheet with today's running tally beside it */}
+      <div className="hidden items-start gap-6 lg:grid xl:grid-cols-[minmax(0,1fr)_17rem]">
+        <section aria-label="Score sheet" className="bg-card min-w-0 rounded-md border">
+          <div className="border-rule text-muted-foreground grid grid-cols-[minmax(13rem,1fr)_17.5rem_minmax(0,1.15fr)] gap-4 border-b px-4 py-2.5">
+            <span className="kicker text-[12px]">Game</span>
+            <span className="kicker text-[12px]">Your score</span>
+            <span className="kicker text-[12px]">Everyone</span>
+          </div>
+          <div className="divide-y">
+            {games.map((g, i) => (
+              <GameCard
+                key={`${date}:${g.id}:row`}
+                variant="row"
+                nextInputId={games[i + 1] ? `score-row-${games[i + 1].id}` : undefined}
+                {...rowProps(g)}
+              />
+            ))}
+          </div>
+          <p className="text-muted-foreground border-t px-4 py-2.5 text-xs">
+            <kbd className="bg-muted rounded px-1 font-mono">Enter</kbd> saves a row and moves to
+            the next one · <kbd className="bg-muted rounded px-1 font-mono">Ctrl/⌘ + Enter</kbd>{" "}
+            saves everything you&apos;ve typed
+          </p>
+        </section>
+        <DayTally games={games} meId={meId} />
       </div>
 
       <AnimatePresence>
@@ -290,13 +337,7 @@ export function TodayBoard({
               <span className="text-sm">
                 <span className="num text-lg font-bold">{dirtyGames.length}</span> unsaved
               </span>
-              <Button
-                className="ml-auto"
-                disabled={savingAll}
-                onClick={() =>
-                  startSaveAll(() => submit(dirtyGames.map((game) => ({ game, failed: false }))))
-                }
-              >
+              <Button className="ml-auto" disabled={savingAll} onClick={saveAll}>
                 {savingAll ? <Loader2 className="animate-spin" /> : <Check />}
                 Save all ({dirtyGames.length})
               </Button>
@@ -308,18 +349,7 @@ export function TodayBoard({
   );
 }
 
-function GameCard({
-  game: g,
-  meId,
-  draft,
-  dirty,
-  error,
-  busy,
-  onDraft,
-  onSave,
-  onFail,
-  onDelete,
-}: {
+interface GameProps {
   game: TodayGame;
   meId: string;
   draft: string;
@@ -330,199 +360,351 @@ function GameCard({
   onSave: () => void;
   onFail: () => void;
   onDelete: () => void;
-}) {
-  const inputId = `score-${g.id}`;
-  const hintId = `hint-${g.id}`;
-  const errId = `err-${g.id}`;
+}
+
+/** One game: a card on phones, a score-sheet row on computers. Same controls in both. */
+function GameCard(props: GameProps & { variant: "card" | "row"; nextInputId?: string }) {
+  const { game: g, variant, dirty } = props;
   const saved = g.mine;
+  const ids = {
+    input: `score-${variant}-${g.id}`,
+    hint: `hint-${variant}-${g.id}`,
+    err: `err-${variant}-${g.id}`,
+  };
+
+  const title = (
+    <h2
+      className={cn(
+        "font-display flex min-w-0 items-center gap-2 leading-tight font-bold",
+        variant === "card" ? "text-xl" : "text-lg",
+      )}
+    >
+      <GameDot color={g.color} className="size-3" />
+      <span className="truncate">{g.name}</span>
+      {g.url && (
+        <a
+          href={g.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-muted-foreground hover:text-foreground -m-1 rounded-sm p-1"
+          aria-label={`Play ${g.name} (opens in a new tab)`}
+          title={`Play ${g.name}`}
+        >
+          <ExternalLink className="size-4" />
+        </a>
+      )}
+    </h2>
+  );
+  const status =
+    saved && !dirty ? (
+      <span className="text-success flex shrink-0 items-center gap-1 text-sm font-semibold">
+        <Check className="size-4" aria-hidden /> Saved{" "}
+        <span className="num text-foreground text-lg leading-none">
+          {formatValue(g, saved.value, saved.failed)}
+        </span>
+      </span>
+    ) : (
+      <span className="text-muted-foreground shrink-0 text-xs">Not logged</span>
+    );
+  const hint = (
+    <div
+      id={ids.hint}
+      className={cn("leading-snug", variant === "card" ? "text-[15px]" : "text-[13px]")}
+    >
+      <p className={cn(variant === "row" && "text-muted-foreground")}>{g.entry_prompt}</p>
+      {g.entry_example && (
+        <p className="text-muted-foreground mt-0.5 text-[13px]">{g.entry_example}</p>
+      )}
+    </div>
+  );
+
+  if (variant === "row") {
+    return (
+      <div
+        data-testid={`game-card-${g.name}`}
+        className="grid grid-cols-[minmax(13rem,1fr)_17.5rem_minmax(0,1.15fr)] items-start gap-4 px-4 py-3.5"
+      >
+        <div className="grid min-w-0 gap-1">
+          {title}
+          {hint}
+        </div>
+        <div className="grid gap-1.5">
+          <ScoreForm {...props} ids={ids} compact />
+          <div className="flex min-h-5 items-center justify-between gap-2">
+            {props.error ? <FormError message={props.error} className="text-[13px]" /> : status}
+            <span id={ids.err} className="sr-only" aria-live="polite">
+              {props.error}
+            </span>
+            {saved && <ClearButton {...props} />}
+          </div>
+        </div>
+        <Results game={g} meId={props.meId} variant="row" />
+      </div>
+    );
+  }
+
   return (
     <Card className="flex flex-col" data-testid={`game-card-${g.name}`}>
       <div className="grid gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="font-display flex min-w-0 items-center gap-2 text-xl leading-tight font-bold">
-            <GameDot color={g.color} className="size-3" />
-            <span className="truncate">{g.name}</span>
-            {g.url && (
-              <a
-                href={g.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground -m-1 rounded-sm p-1"
-                aria-label={`Play ${g.name} (opens in a new tab)`}
-              >
-                <ExternalLink className="size-4" />
-              </a>
-            )}
-          </h2>
-          {saved && !dirty ? (
-            <span className="text-success flex shrink-0 items-center gap-1 text-sm font-semibold">
-              <Check className="size-4" aria-hidden /> Saved{" "}
-              <span className="num text-foreground text-lg leading-none">
-                {formatValue(g, saved.value, saved.failed)}
-              </span>
-            </span>
-          ) : (
-            <span className="text-muted-foreground shrink-0 text-xs">Not logged</span>
-          )}
+          {title}
+          {status}
         </div>
-
-        <div id={hintId} className="text-[15px] leading-snug">
-          <p>{g.entry_prompt}</p>
-          {g.entry_example && (
-            <p className="text-muted-foreground mt-0.5 text-[13px]">{g.entry_example}</p>
-          )}
-        </div>
-
-        <form
-          className="flex items-stretch gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSave();
-          }}
-        >
-          <label htmlFor={inputId} className="sr-only">
-            {g.name} score{g.unit_label ? ` (${g.unit_label})` : ""}
-          </label>
-          <div className="relative min-w-0 flex-1">
-            <input
-              id={inputId}
-              value={draft}
-              onChange={(e) =>
-                onDraft(g.input_type === "time" ? formatTimeTyping(e.target.value) : e.target.value)
-              }
-              inputMode={inputModeFor(g)}
-              enterKeyHint="done"
-              autoComplete="off"
-              placeholder={
-                saved?.failed
-                  ? "X"
-                  : g.input_type === "time"
-                    ? "m:ss"
-                    : g.entry_example.replace(/^e\.g\.\s*/, "")
-              }
-              aria-describedby={`${hintId}${error ? ` ${errId}` : ""}`}
-              aria-invalid={!!error}
-              className={cn(
-                "num border-input bg-background placeholder:text-muted-foreground/45 focus-visible:border-ring focus-visible:ring-ring/40 h-12 w-full rounded-md border px-3 text-[26px] font-bold outline-none focus-visible:ring-2",
-                g.unit_label && "pr-16",
-                error && "border-destructive",
-              )}
-            />
-            {g.unit_label && (
-              <span className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs">
-                {g.unit_label}
-              </span>
-            )}
-          </div>
-          {g.min < 0 && g.input_type !== "time" && (
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 w-11 px-0 text-lg"
-              aria-label="Flip plus/minus sign"
-              onClick={() => {
-                const v = draft.trim();
-                onDraft(v.startsWith("-") ? v.slice(1) : `-${v.replace(/^\+/, "")}`);
-              }}
-            >
-              ±
-            </Button>
-          )}
-          <Button
-            type="submit"
-            className="h-12 px-5"
-            disabled={busy || (!dirty && !!saved && !saved.failed)}
-          >
-            {busy ? <Loader2 className="animate-spin" /> : "Save"}
-          </Button>
-          {g.allow_fail && (
-            <Button
-              type="button"
-              variant={saved?.failed ? "destructive" : "outline"}
-              className="h-12 px-3"
-              aria-pressed={!!saved?.failed}
-              disabled={busy}
-              onClick={onFail}
-              title="Didn't finish"
-            >
-              X<span className="sr-only sm:not-sr-only">&nbsp;didn&apos;t finish</span>
-            </Button>
-          )}
-        </form>
-        {(error || saved) && (
+        {hint}
+        <ScoreForm {...props} ids={ids} />
+        {(props.error || saved) && (
           <div className="flex items-center justify-between gap-2">
-            <FormError message={error} className="text-[13px]" />
-            <span id={errId} className="sr-only" aria-live="polite">
-              {error}
+            <FormError message={props.error} className="text-[13px]" />
+            <span id={ids.err} className="sr-only" aria-live="polite">
+              {props.error}
             </span>
-            {saved && (
-              <button
-                type="button"
-                onClick={onDelete}
-                disabled={busy}
-                className="text-muted-foreground hover:text-destructive -my-2 ml-auto flex min-h-9 cursor-pointer items-center gap-1 rounded-sm px-1 text-[13px]"
-              >
-                <Trash2 className="size-3.5" aria-hidden /> Clear my score
-              </button>
-            )}
+            {saved && <ClearButton {...props} />}
           </div>
         )}
       </div>
-
-      <DayBoard game={g} meId={meId} />
+      <Results game={g} meId={props.meId} variant="card" />
     </Card>
   );
 }
 
-function DayBoard({ game: g, meId }: { game: TodayGame; meId: string }) {
+function ClearButton({ busy, onDelete }: GameProps) {
+  return (
+    <button
+      type="button"
+      onClick={onDelete}
+      disabled={busy}
+      className="text-muted-foreground hover:text-destructive -my-2 ml-auto flex min-h-9 cursor-pointer items-center gap-1 rounded-sm px-1 text-[13px]"
+    >
+      <Trash2 className="size-3.5" aria-hidden /> Clear my score
+    </button>
+  );
+}
+
+function ScoreForm({
+  game: g,
+  draft,
+  dirty,
+  error,
+  busy,
+  onDraft,
+  onSave,
+  onFail,
+  ids,
+  compact,
+  nextInputId,
+}: GameProps & {
+  ids: { input: string; hint: string; err: string };
+  compact?: boolean;
+  nextInputId?: string;
+}) {
+  const saved = g.mine;
+  const h = compact ? "h-10" : "h-12";
+  return (
+    <form
+      className="flex items-stretch gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave();
+        if (nextInputId) document.getElementById(nextInputId)?.focus();
+      }}
+    >
+      <label htmlFor={ids.input} className="sr-only">
+        {g.name} score{g.unit_label ? ` (${g.unit_label})` : ""}
+      </label>
+      <div className="relative min-w-0 flex-1">
+        <input
+          id={ids.input}
+          value={draft}
+          onChange={(e) =>
+            onDraft(g.input_type === "time" ? formatTimeTyping(e.target.value) : e.target.value)
+          }
+          inputMode={inputModeFor(g)}
+          enterKeyHint="done"
+          autoComplete="off"
+          placeholder={
+            saved?.failed
+              ? "X"
+              : g.input_type === "time"
+                ? "m:ss"
+                : g.entry_example.replace(/^e\.g\.\s*/, "")
+          }
+          aria-describedby={`${ids.hint}${error ? ` ${ids.err}` : ""}`}
+          aria-invalid={!!error}
+          className={cn(
+            "num border-input bg-background placeholder:text-muted-foreground/45 focus-visible:border-ring focus-visible:ring-ring/40 w-full rounded-md border px-3 font-bold outline-none focus-visible:ring-2",
+            compact ? "h-10 text-xl" : "h-12 text-[26px]",
+            g.unit_label && "pr-16",
+            error && "border-destructive",
+          )}
+        />
+        {g.unit_label && (
+          <span className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-xs">
+            {g.unit_label}
+          </span>
+        )}
+      </div>
+      {g.min < 0 && g.input_type !== "time" && (
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(h, "w-10 px-0 text-lg")}
+          aria-label="Flip plus/minus sign"
+          title="Flip +/−"
+          onClick={() => {
+            const v = draft.trim();
+            onDraft(v.startsWith("-") ? v.slice(1) : `-${v.replace(/^\+/, "")}`);
+          }}
+        >
+          ±
+        </Button>
+      )}
+      <Button
+        type="submit"
+        className={cn(h, compact ? "px-4" : "px-5")}
+        disabled={busy || (!dirty && !!saved && !saved.failed)}
+      >
+        {busy ? <Loader2 className="animate-spin" /> : "Save"}
+      </Button>
+      {g.allow_fail && (
+        <Button
+          type="button"
+          variant={saved?.failed ? "destructive" : "outline"}
+          className={cn(h, "px-3")}
+          aria-pressed={!!saved?.failed}
+          disabled={busy}
+          onClick={onFail}
+          title="Didn't finish"
+        >
+          X{!compact && <span className="sr-only sm:not-sr-only">&nbsp;didn&apos;t finish</span>}
+          {compact && <span className="sr-only">&nbsp;didn&apos;t finish</span>}
+        </Button>
+      )}
+    </form>
+  );
+}
+
+function Results({
+  game: g,
+  meId,
+  variant,
+}: {
+  game: TodayGame;
+  meId: string;
+  variant: "card" | "row";
+}) {
   if (g.status === "empty") {
     return (
-      <p className="text-muted-foreground mt-auto border-t px-4 py-3 text-sm">
+      <p
+        className={cn(
+          "text-muted-foreground text-sm",
+          variant === "card" ? "mt-auto border-t px-4 py-3" : "pt-2",
+        )}
+      >
         No scores yet. Be the first.
       </p>
     );
   }
-  return (
-    <div className="mt-auto border-t">
-      {g.status === "waiting" && (
-        <p className="text-warning flex items-center gap-1.5 px-4 pt-3 text-[13px] font-medium">
-          <Hourglass className="size-3.5" aria-hidden /> Waiting for a second player. No points yet.
-        </p>
+  const waiting = g.status === "waiting" && (
+    <p
+      className={cn(
+        "text-warning flex items-center gap-1.5 text-[13px] font-medium",
+        variant === "card" ? "px-4 pt-3" : "mb-1",
       )}
-      <ol className="px-2 py-1.5" aria-label={`${g.name} results`}>
-        <AnimatePresence initial={false}>
-          {g.entries.map((e) => (
-            <motion.li
-              key={e.memberId}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className={cn(
-                "flex min-h-10 items-center gap-2.5 rounded-sm px-2 text-sm",
-                e.memberId === meId && "bg-accent-soft",
+    >
+      <Hourglass className="size-3.5" aria-hidden /> Waiting for a second player. No points yet.
+    </p>
+  );
+  return (
+    <div className={cn(variant === "card" && "mt-auto border-t")}>
+      {waiting}
+      <ol
+        className={cn(variant === "card" ? "px-2 py-1.5" : "grid gap-0.5")}
+        aria-label={`${g.name} results`}
+      >
+        {g.entries.map((e) => (
+          <li
+            key={e.memberId}
+            className={cn(
+              "flex items-center gap-2.5 rounded-sm px-2 text-sm",
+              variant === "card" ? "min-h-10" : "min-h-8",
+              e.memberId === meId && "bg-accent-soft",
+            )}
+          >
+            <RankBadge
+              rank={g.status === "scored" ? e.rank : e.failed ? null : e.rank}
+              failed={e.failed}
+            />
+            <span className="min-w-0 flex-1 truncate font-medium">
+              {e.name}
+              {e.memberId === meId && (
+                <span className="text-muted-foreground ml-1.5 text-xs font-normal"> you</span>
               )}
-            >
-              <RankBadge
-                rank={g.status === "scored" ? e.rank : e.failed ? null : e.rank}
-                failed={e.failed}
-              />
-              <span className="min-w-0 flex-1 truncate font-medium">
-                {e.name}
-                {e.memberId === meId && (
-                  <span className="text-muted-foreground ml-1.5 text-xs font-normal"> you</span>
-                )}
+            </span>
+            <span className={cn("num font-bold", variant === "card" ? "text-xl" : "text-lg")}>
+              {formatValue(g, e.value, e.failed)}
+            </span>
+            {g.status === "scored" && (
+              <span className="num text-accent w-9 text-right text-base font-semibold">
+                +{e.points}
               </span>
-              <span className="num text-xl font-bold">{formatValue(g, e.value, e.failed)}</span>
-              {g.status === "scored" && (
-                <span className="num text-accent w-9 text-right text-base font-semibold">
-                  +{e.points}
-                </span>
-              )}
-            </motion.li>
-          ))}
-        </AnimatePresence>
+            )}
+          </li>
+        ))}
       </ol>
     </div>
+  );
+}
+
+/** Desktop sidebar: points everyone has earned so far on this day. */
+function DayTally({ games, meId }: { games: TodayGame[]; meId: string }) {
+  const tally = new Map<string, { name: string; points: number; wins: number; played: number }>();
+  for (const g of games) {
+    for (const e of g.entries) {
+      const t = tally.get(e.memberId) ?? { name: e.name, points: 0, wins: 0, played: 0 };
+      t.played += 1;
+      if (g.status === "scored") {
+        t.points += e.points;
+        if (e.isWinner) t.wins += 1;
+      }
+      tally.set(e.memberId, t);
+    }
+  }
+  const rows = [...tally.entries()].sort(
+    (a, b) =>
+      b[1].points - a[1].points || b[1].wins - a[1].wins || a[1].name.localeCompare(b[1].name),
+  );
+  return (
+    <aside
+      className="bg-card sticky top-20 hidden rounded-md border xl:block"
+      aria-label="Points so far"
+    >
+      <h2 className="font-display border-b px-4 py-3 text-lg font-bold tracking-wide uppercase">
+        Points so far
+      </h2>
+      {rows.length === 0 ? (
+        <p className="text-muted-foreground px-4 py-3 text-sm">Nobody has logged a score yet.</p>
+      ) : (
+        <ol className="divide-y">
+          {rows.map(([id, r], i) => (
+            <li
+              key={id}
+              className={cn("flex items-center gap-2.5 px-4 py-2", id === meId && "bg-accent-soft")}
+            >
+              <span className="num text-muted-foreground w-5 text-right">{i + 1}</span>
+              <span className="min-w-0 flex-1 truncate font-medium">
+                {r.name}
+                {id === meId && (
+                  <span className="text-muted-foreground text-xs font-normal"> you</span>
+                )}
+              </span>
+              <span className="text-muted-foreground text-xs">
+                {r.played} {r.played === 1 ? "game" : "games"}
+              </span>
+              <span className="num w-8 text-right text-xl font-bold">{r.points}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </aside>
   );
 }

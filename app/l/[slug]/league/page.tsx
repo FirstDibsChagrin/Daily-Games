@@ -1,6 +1,6 @@
 import { ChevronRight, Crown } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { GameDot, PageTitle } from "@/components/league/bits";
 import { CopyButton, ShareButton } from "@/components/league/copy-button";
 import { Badge } from "@/components/ui/badge";

@@ -42,6 +42,7 @@ test("creator manages games: checklist, custom, edit, reorder, archive/restore, 
   await page.goto(`/l/${slug}/today`);
   const order = await page
     .locator("[data-testid^=game-card-]")
+    .filter({ visible: true })
     .evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")!.replace("game-card-", "")));
   expect(order).toEqual([
     "Wordle",

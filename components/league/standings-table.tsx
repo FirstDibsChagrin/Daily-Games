@@ -2,7 +2,7 @@
 
 import { Crown } from "lucide-react";
 import { motion } from "motion/react";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { RankBadge } from "@/components/league/bits";
 import { cn } from "@/lib/utils";
 

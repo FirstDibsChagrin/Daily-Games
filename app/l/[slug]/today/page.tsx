@@ -1,6 +1,6 @@
 import { Puzzle } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { AutoRefresh } from "@/components/league/auto-refresh";
 import { EmptyState } from "@/components/league/bits";
 import { Button } from "@/components/ui/button";

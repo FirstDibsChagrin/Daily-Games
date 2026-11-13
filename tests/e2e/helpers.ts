@@ -64,8 +64,9 @@ export async function addCatalogGames(page: Page, slug: string, names: string[])
   for (const n of names) await expect(page.locator(`[data-testid="game-row-${n}"]`)).toBeVisible();
 }
 
+/** The visible entry UI for a game (desktop score-sheet row or phone card). */
 export function card(page: Page, game: string) {
-  return page.locator(`[data-testid="game-card-${game}"]`);
+  return page.locator(`[data-testid="game-card-${game}"]`).filter({ visible: true });
 }
 
 /** Enters one score on the Today screen (raw text or "X") and waits for the save. */

@@ -1,7 +1,7 @@
 import { CalendarDays, Crown, Trophy } from "lucide-react";
 import { ChampionBanner } from "@/components/league/champion-banner";
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { AutoRefresh } from "@/components/league/auto-refresh";
 import { CelebrateOnce } from "@/components/league/celebrate-once";
 import { EmptyState, GameName, PageTitle } from "@/components/league/bits";

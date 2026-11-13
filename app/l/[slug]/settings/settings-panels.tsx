@@ -1,7 +1,7 @@
 "use client";
 
 import { Crown, KeyRound, RefreshCw, Trash2, UserMinus } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/app-link";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
