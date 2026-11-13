@@ -45,14 +45,14 @@ tests/e2e/           Playwright end-to-end tests
 
 ## Environment variables
 
-| Variable | Where | What |
-|---|---|---|
-| `DATABASE_URL` | Vercel + local | Postgres connection for the app (server only). In production, the Supabase **transaction pooler** URL for the `daily_league_app` role: `postgres://daily_league_app.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres` |
-| `SESSION_SECRET` | Vercel + local | 32+ random characters used to sign device cookies (`openssl rand -base64 32`) |
-| `CRON_SECRET` | Vercel | Random string. Vercel Cron sends it as `Authorization: Bearer …` to `/api/cron/keepalive` |
-| `DATABASE_ADMIN_URL` | local only (optional) | Admin connection used by `db:migrate` / `db:seed`. Falls back to `DATABASE_URL` |
-| `APP_ROLE_PASSWORD` | local only (optional) | Lets `db:migrate` set the local app role's password |
-| `ALLOW_TEST_CLOCK` | tests only | `1` lets e2e tests fake the clock with a cookie. **Never set in production.** |
+| Variable             | Where                 | What                                                                                                                                                                                                                                           |
+| -------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`       | Vercel + local        | Postgres connection for the app (server only). In production, the Supabase **transaction pooler** URL for the `daily_league_app` role: `postgres://daily_league_app.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres` |
+| `SESSION_SECRET`     | Vercel + local        | 32+ random characters used to sign device cookies (`openssl rand -base64 32`)                                                                                                                                                                  |
+| `CRON_SECRET`        | Vercel                | Random string. Vercel Cron sends it as `Authorization: Bearer …` to `/api/cron/keepalive`                                                                                                                                                      |
+| `DATABASE_ADMIN_URL` | local only (optional) | Admin connection used by `db:migrate` / `db:seed`. Falls back to `DATABASE_URL`                                                                                                                                                                |
+| `APP_ROLE_PASSWORD`  | local only (optional) | Lets `db:migrate` set the local app role's password                                                                                                                                                                                            |
+| `ALLOW_TEST_CLOCK`   | tests only            | `1` lets e2e tests fake the clock with a cookie. **Never set in production.**                                                                                                                                                                  |
 
 See `.env.example`. Secrets are never committed.
 
@@ -119,22 +119,21 @@ npm run db:seed       # upserts into the database (DATABASE_ADMIN_URL or DATABAS
 Seeding updates the global catalog only. Leagues that already added a game keep their own
 copy, so creators can edit theirs in-app (League → Manage games).
 
-## Needs confirmation
+## Catalog notes
 
-These catalog games are seeded with `verified = false` (shown with an "unverified" tag in the
-catalog). I couldn't confirm their scoring from public sources. League creators can edit any
-field in-app.
+All 16 catalog games now have confirmed scoring. Noillirk is points (0–100000, highest wins),
+Daily Holes is golf-style relative to par (−30 to +100, lowest wins), and Eraly is points out of
+700 (highest wins). **Range Squeeze** and **Play Plain** are points scored, but I couldn't find
+their real maximums, so the max is 100000. Official links are filled in only for Wordle,
+Connections and Waffle, the only ones I'm certain of.
 
-- **Noillirk**: seeded as a decimal 0–14 "km" climb, higher wins. Confirm the unit and number
-  on the results screen.
-- **Daily Holes**: seeded as total strokes 1–200, lower wins. If the share shows strokes vs
-  par, change it to allow negatives.
-- **Eraly**: seeded as a 0–100000 score, higher wins. Confirm what it reports and which
-  direction wins.
+## Design
 
-**Range Squeeze** and **Play Plain** are verified (points scored), but I couldn't find their real
-maximums, so the max is 100000. Official links are filled in only for Wordle, Connections and
-Waffle, the only ones I'm certain of.
+A sports-page box score: warm ink (dark) and newsprint (light) surfaces, hairline-ruled tables,
+Barlow Condensed for headings and numbers, IBM Plex Sans for text, IBM Plex Mono for join codes,
+and one chartreuse accent. It's flat (no glows, gradients or blur) and uses Lucide icons rather
+than emoji. Podium ranks are numbered chips tinted gold, silver or bronze, so rank is never shown
+by color alone. Tokens live in `app/globals.css`, and every text pair meets WCAG AA in both themes.
 
 ## Assumptions
 
@@ -146,7 +145,7 @@ Decisions I made where the spec was silent:
 - **League URLs** use a permanent 6-character slug (the league's first join code). The join code
   can be regenerated without breaking bookmarks. League pages require membership on that
   device, so a URL alone doesn't grant access.
-- **Only the creator sees the join code.** Members see "Ask <creator> for the join code".
+- **Every member can see and share the join code** (League tab). Only the creator can regenerate it.
 - **"Games played" and "Avg"** in standings count only game-days that were scored (2+ players).
   A lone submission doesn't drag down your average.
 - **Standings ties** share a rank only when points and 1st-place finishes are equal (the same rule
@@ -156,7 +155,7 @@ Decisions I made where the spec was silent:
 - **Badges** are recomputed from data after every score or game change, on stats, profile and
   recap visits, and by the daily cron. A badge's date is the game day it was earned (shown in
   recaps). Badges revoke automatically when the data no longer supports them. Completionist uses
-  the league's *current* active games. Day Sweep ignores games where you were the only player
+  the league's _current_ active games. Day Sweep ignores games where you were the only player
   (you need 3+ contested games and won them all). Comeback Kid's "last place" means the lowest
   points among players who scored that week (2+ players; nobody is last if everyone ties).
 - **Streak in a recap** = the longest participation run active at any point that week, counting

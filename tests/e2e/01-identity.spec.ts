@@ -25,9 +25,7 @@ test("create a league, share code + link, three friends join, reclaim on a new d
   }
   await page.goto(`/l/${slug}/league`);
   for (const n of ["Jack", "TJ", "Cara", "Dev"])
-    await expect(
-      page.getByRole("link", { name: new RegExp(`^${n.slice(0, 1)}\\s*${n}`) }),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: new RegExp(`^${n}\\b`) })).toBeVisible();
 
   // Names are unique, case-insensitively
   const dup = await browser.newContext();

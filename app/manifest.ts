@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Log daily puzzle scores and compete with friends.",
     start_url: "/",
     display: "standalone",
-    background_color: "#090c16",
-    theme_color: "#090c16",
+    background_color: "#11110e",
+    theme_color: "#11110e",
     orientation: "portrait",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },

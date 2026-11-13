@@ -1,3 +1,4 @@
+import { Newspaper } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState, PageTitle } from "@/components/league/bits";
@@ -22,19 +23,19 @@ export default async function RecapListPage({ params }: PageProps<"/l/[slug]/rec
         subtitle="A recap is generated for every completed week (Mon–Sun, Eastern)."
       />
       {done.length === 0 ? (
-        <EmptyState icon="🗞️" title="No recaps yet">
+        <EmptyState icon={<Newspaper />} title="No recaps yet">
           The first recap appears after Sunday at midnight Eastern.
         </EmptyState>
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2">
           {done.map((w) => (
             <li key={w.weekStart}>
-              <Link href={`/l/${slug}/recap/${w.weekStart}`} className="group block rounded-xl">
+              <Link href={`/l/${slug}/recap/${w.weekStart}`} className="group block rounded-md">
                 <Card className="group-hover:border-ring/60 p-4 transition-colors">
                   <p className="text-muted-foreground text-sm">{formatWeek(w.weekStart)}</p>
                   <p className="font-display text-lg font-semibold">
                     {w.champions.length
-                      ? `🏆 ${w.champions.map((id) => ctx.memberName.get(id)).join(" & ")}`
+                      ? `Champion: ${w.champions.map((id) => ctx.memberName.get(id)).join(" & ")}`
                       : "No champion"}
                   </p>
                 </Card>

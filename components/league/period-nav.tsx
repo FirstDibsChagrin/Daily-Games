@@ -28,19 +28,21 @@ export function PeriodNav({
   const prev = shiftPeriod(period, -1);
   const next = shiftPeriod(period, 1);
   const atCurrent = isCurrentPeriod(period, today);
+  const arrow =
+    "text-muted-foreground hover:bg-muted hover:text-foreground grid size-11 place-items-center rounded-md";
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <nav aria-label="Period" className="bg-muted flex rounded-lg p-1">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <nav aria-label="Period" className="flex overflow-hidden rounded-md border">
         {KINDS.map((k) => (
           <Link
             key={k.kind}
             href={hrefFor(k.kind, null)}
             aria-current={period.kind === k.kind ? "page" : undefined}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-semibold transition-colors",
+              "font-display flex h-11 items-center border-r px-3.5 text-[15px] font-semibold tracking-wide uppercase transition-colors last:border-r-0",
               period.kind === k.kind
-                ? "bg-card text-foreground shadow"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             {k.label}
@@ -48,37 +50,29 @@ export function PeriodNav({
         ))}
       </nav>
       {period.kind !== "all" && (
-        <div className="flex items-center gap-1">
-          <Link
-            href={hrefFor(period.kind, prev.anchor)}
-            className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-md p-2"
-            aria-label="Previous"
-          >
-            <ChevronLeft className="size-4" />
+        <div className="flex items-center">
+          <Link href={hrefFor(period.kind, prev.anchor)} className={arrow} aria-label="Previous">
+            <ChevronLeft className="size-5" />
           </Link>
           <span
-            className="font-display min-w-36 text-center text-sm font-semibold"
+            className="font-display min-w-32 text-center text-base font-semibold"
             aria-live="polite"
           >
             {periodLabel(period, today)}
           </span>
           {atCurrent ? (
-            <span className="text-muted-foreground/30 p-2" aria-hidden>
-              <ChevronRight className="size-4" />
+            <span className="text-muted-foreground/30 grid size-11 place-items-center" aria-hidden>
+              <ChevronRight className="size-5" />
             </span>
           ) : (
-            <Link
-              href={hrefFor(period.kind, next.anchor)}
-              className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-md p-2"
-              aria-label="Next"
-            >
-              <ChevronRight className="size-4" />
+            <Link href={hrefFor(period.kind, next.anchor)} className={arrow} aria-label="Next">
+              <ChevronRight className="size-5" />
             </Link>
           )}
           {!atCurrent && (
             <Link
               href={hrefFor(period.kind, null)}
-              className="text-accent ml-1 text-xs font-semibold hover:underline"
+              className="text-accent ml-1 text-sm font-semibold underline-offset-4 hover:underline"
             >
               Current
             </Link>

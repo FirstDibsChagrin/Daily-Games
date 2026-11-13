@@ -58,8 +58,8 @@ export default async function GamesSettingsPage({
         subtitle="Choose what your league plays. Changes apply to everyone right away."
       />
       {sp.welcome && (
-        <div className="border-ring/40 bg-accent-soft mb-4 rounded-xl border p-4">
-          <p className="font-display text-lg font-semibold">🎉 Your league is ready!</p>
+        <div className="border-ring/40 bg-accent-soft mb-4 rounded-md border p-4">
+          <p className="font-display text-lg font-semibold">Your league is ready</p>
           <p className="text-muted-foreground text-sm">
             Tick the games your group plays and tap <strong>Add selected</strong>. Then share your
             join code <span className="num text-foreground font-bold">{ctx.league.join_code}</span>{" "}

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
+import { AuthShell } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CODE_RE, normalizeCode } from "@/lib/codes";
 import { db } from "@/lib/server/db";
 import { hit, lockedFor, lockMessage, RULES } from "@/lib/server/rate-limit";
@@ -29,28 +28,17 @@ export default async function JoinCodePage({ params }: PageProps<"/join/[code]">
       const lock = await hit(key, RULES.joinCode);
       error = lock
         ? lockMessage(lock)
-        : "No league has that code. It may have been changed — ask for the current one.";
+        : "No league has that code. It may have been changed, so ask for the current one.";
     }
   }
 
   if (!league) {
     return (
-      <>
-        <SiteHeader />
-        <main id="main" className="mx-auto w-full max-w-md px-4 pb-16">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Can&apos;t find that league</CardTitle>
-              <CardDescription>{error}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="outline">
-                <Link href="/join">Enter a different code</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </main>
-      </>
+      <AuthShell title="Can't find that league" description={error}>
+        <Button asChild variant="outline">
+          <Link href="/join">Enter a different code</Link>
+        </Button>
+      </AuthShell>
     );
   }
 
@@ -59,35 +47,20 @@ export default async function JoinCodePage({ params }: PageProps<"/join/[code]">
     select id, name from members where league_id = ${league.id} order by lower(name)`;
 
   return (
-    <>
-      <SiteHeader />
-      <main id="main" className="mx-auto w-full max-w-md px-4 pb-16">
-        <Card>
-          <CardHeader>
-            <p className="text-accent text-sm font-semibold tracking-widest uppercase">
-              You&apos;re invited to
-            </p>
-            <CardTitle className="text-3xl">{league.name}</CardTitle>
-            <CardDescription>
-              {members.length} {members.length === 1 ? "player" : "players"} so far
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {me && (
-              <div className="border-ring/40 bg-accent-soft rounded-lg border p-3 text-sm">
-                This device is already in this league as <strong>{me.memberName}</strong>.{" "}
-                <Link
-                  className="text-accent font-semibold underline"
-                  href={`/l/${league.slug}/today`}
-                >
-                  Go to the league
-                </Link>
-              </div>
-            )}
-            <JoinForms code={code} members={members} />
-          </CardContent>
-        </Card>
-      </main>
-    </>
+    <AuthShell
+      kicker="You're invited to"
+      title={league.name}
+      description={`${members.length} ${members.length === 1 ? "player" : "players"} so far`}
+    >
+      {me && (
+        <p className="bg-accent-soft mb-5 rounded-md border px-3 py-2.5 text-sm">
+          This device is already in this league as <strong>{me.memberName}</strong>.{" "}
+          <Link className="text-accent font-semibold underline" href={`/l/${league.slug}/today`}>
+            Go to the league
+          </Link>
+        </p>
+      )}
+      <JoinForms code={code} members={members} />
+    </AuthShell>
   );
 }

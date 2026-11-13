@@ -1,4 +1,4 @@
-import { Crown, Flame, Trophy } from "lucide-react";
+import { Crown, Flame, NotebookPen, Trophy } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -77,7 +77,7 @@ export default async function ProfilePage({ params }: PageProps<"/l/[slug]/p/[me
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-4">
-        <div className="from-primary to-accent font-display glow flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br text-3xl font-bold text-white">
+        <div className="bg-primary text-primary-foreground font-display flex size-16 items-center justify-center rounded-md text-4xl font-bold">
           {member.name.slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
@@ -86,10 +86,10 @@ export default async function ProfilePage({ params }: PageProps<"/l/[slug]/p/[me
             {member.is_creator && (
               <Crown className="text-gold size-5" aria-label="League creator" />
             )}
-            {isMe && <span className="text-accent text-base font-normal">(you)</span>}
+            {isMe && <span className="text-accent text-base font-normal"> (you)</span>}
           </h1>
           <p className="text-muted-foreground text-sm">
-            {mine.length} scores logged · joined{" "}
+            {mine.length} {mine.length === 1 ? "score" : "scores"} logged · joined{" "}
             {formatShort(member.created_at.toISOString().slice(0, 10))}
           </p>
         </div>
@@ -108,7 +108,11 @@ export default async function ProfilePage({ params }: PageProps<"/l/[slug]/p/[me
           value={myRow.points}
           sub={myRow.points ? `${ordinal(myRow.rank)} in league` : undefined}
         />
-        <Stat label="1st places" value={myRow.wins} sub={`${myRow.played} games played`} />
+        <Stat
+          label="1st places"
+          value={myRow.wins}
+          sub={`${myRow.played} ${myRow.played === 1 ? "game" : "games"} played`}
+        />
         <Stat
           label="Current streak"
           value={streak.current}
@@ -125,7 +129,7 @@ export default async function ProfilePage({ params }: PageProps<"/l/[slug]/p/[me
       </section>
 
       {mine.length === 0 ? (
-        <EmptyState icon="📝" title="No scores yet">
+        <EmptyState icon={<NotebookPen />} title="No scores yet">
           {isMe
             ? "Log your first score on the Today tab to earn the Rookie badge."
             : `${member.name} hasn't logged any scores yet.`}
@@ -253,7 +257,7 @@ export default async function ProfilePage({ params }: PageProps<"/l/[slug]/p/[me
                         href={`/l/${slug}/recap/${w.weekStart}`}
                         className="border-gold/40 bg-gold/10 hover:bg-gold/20 inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm font-semibold"
                       >
-                        🏆 {formatWeek(w.weekStart)}
+                        <Trophy className="size-3.5" aria-hidden /> {formatWeek(w.weekStart)}
                       </Link>
                     </li>
                   ))}

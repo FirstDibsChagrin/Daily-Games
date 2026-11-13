@@ -16,7 +16,7 @@ export function GameFilter({
   return (
     <NativeSelect
       aria-label="Filter by game"
-      className="w-full sm:w-56"
+      className="w-full sm:w-60"
       value={value ?? ""}
       onChange={(e) => {
         const p = new URLSearchParams(sp.toString());

@@ -1,10 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Chakra_Petch, Inter } from "next/font/google";
+import { Barlow_Condensed, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
-const display = Chakra_Petch({
+const plex = IBM_Plex_Sans({
+  variable: "--font-plex",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
+});
+const display = Barlow_Condensed({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
@@ -21,8 +32,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#090c16" },
-    { media: "(prefers-color-scheme: light)", color: "#f4f5fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#11110e" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f1e9" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -31,7 +42,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${display.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${plex.variable} ${plexMono.variable} ${display.variable}`}
+    >
       <body className="min-h-dvh">
         <a
           href="#main"

@@ -35,7 +35,7 @@ export default async function ChampionsPage({ params }: PageProps<"/l/[slug]/cha
         subtitle="Weekly champions: most points Monday–Sunday (ET). Ties go to more 1st places."
       />
       {weeks.length === 0 ? (
-        <EmptyState icon="🏆" title="No champions yet">
+        <EmptyState icon={<Trophy />} title="No champions yet">
           The first weekly champion is crowned after Sunday at midnight Eastern.
         </EmptyState>
       ) : (
@@ -58,7 +58,7 @@ export default async function ChampionsPage({ params }: PageProps<"/l/[slug]/cha
                     <div className="bg-muted h-7 flex-1 overflow-hidden rounded-md">
                       <div
                         className={cn(
-                          "from-gold/70 to-gold/30 flex h-full items-center rounded-md bg-gradient-to-r px-2",
+                          "bg-gold flex h-full items-center rounded-sm px-2",
                           r.trophies === 0 && "bg-none",
                         )}
                         style={{ width: `${(r.trophies / max) * 100}%` }}
@@ -87,14 +87,14 @@ export default async function ChampionsPage({ params }: PageProps<"/l/[slug]/cha
                     <li key={w.weekStart}>
                       <Link
                         href={`/l/${slug}/recap/${w.weekStart}`}
-                        className="hover:bg-muted flex items-center gap-3 rounded-lg px-2 py-2 text-sm"
+                        className="hover:bg-muted flex items-center gap-3 rounded-md px-2 py-2 text-sm"
                       >
                         <span className="text-muted-foreground w-40 shrink-0">
                           {formatWeek(w.weekStart)}
                         </span>
                         <span className="min-w-0 flex-1 truncate font-semibold">
                           {w.champions.length
-                            ? `🏆 ${w.champions.map((id) => ctx.memberName.get(id)).join(" & ")}`
+                            ? w.champions.map((id) => ctx.memberName.get(id)).join(" & ")
                             : "No champion"}
                         </span>
                         {top && <span className="num text-muted-foreground">{top.points} pts</span>}

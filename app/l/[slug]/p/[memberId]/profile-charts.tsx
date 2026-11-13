@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { useMemo, useState } from "react";
 import {
   Bar,
+  Cell,
   BarChart,
   CartesianGrid,
   Line,
@@ -33,18 +34,18 @@ export interface ChartGame {
 // Single-series charts use the accent; per-mode steps so both themes keep contrast.
 const THEME = {
   dark: {
-    accent: "#b69cff",
-    grid: "#252d4a",
-    text: "#98a1c2",
-    surface: "#111628",
-    gold: "#facc15",
+    accent: "#c6ef3a",
+    grid: "#2d2d27",
+    text: "#a6a497",
+    surface: "#191915",
+    gold: "#e9c54a",
   },
   light: {
-    accent: "#6d28d9",
-    grid: "#d7dbea",
-    text: "#4f5672",
-    surface: "#ffffff",
-    gold: "#854d0e",
+    accent: "#46640a",
+    grid: "#d8d4c4",
+    text: "#5a584d",
+    surface: "#fbfaf4",
+    gold: "#7d5e00",
   },
 };
 
@@ -55,7 +56,7 @@ function useChartTheme() {
 
 function TooltipBox({ title, lines }: { title: string; lines: string[] }) {
   return (
-    <div className="bg-card rounded-lg border px-3 py-2 text-xs shadow-xl">
+    <div className="bg-card rounded-md border px-3 py-2 text-xs shadow-xl">
       <p className="font-semibold">{title}</p>
       {lines.map((l) => (
         <p key={l} className="num text-muted-foreground">
@@ -246,7 +247,10 @@ export function ProfileCharts({
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Points per week</CardTitle>
-          <CardDescription>Last {weeks.length} weeks. 🏆 = weekly champion.</CardDescription>
+          <CardDescription>
+            {weeks.length === 1 ? "This week so far." : `Last ${weeks.length} weeks.`} Gold bars
+            marked “1st” are weeks you won.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-52" role="img" aria-label="Points per week">
@@ -271,7 +275,7 @@ export function ProfileCharts({
                         <TooltipBox
                           title={`${formatWeek(String(payload[0].payload.week))}${payload[0].payload.week === currentWeek ? " (so far)" : ""}`}
                           lines={[
-                            `${payload[0].value} pts${payload[0].payload.champion ? " · 🏆 champion" : ""}`,
+                            `${payload[0].value} pts${payload[0].payload.champion ? " · weekly champion" : ""}`,
                           ]}
                         />
                       ) : null
@@ -300,14 +304,20 @@ export function ProfileCharts({
                           y={Number(y) - 4}
                           textAnchor="middle"
                           fontSize={11}
+                          fontWeight={700}
+                          fill={t.gold}
                         >
-                          🏆
+                          1st
                         </text>
                       ) : (
                         <g />
                       )
                     }
-                  />
+                  >
+                    {weeks.map((w) => (
+                      <Cell key={w.week} fill={w.champion ? t.gold : t.accent} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             )}

@@ -1,8 +1,9 @@
-import { ChevronLeft, ChevronRight, Flame, Trophy, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flame, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BadgeChip } from "@/components/league/badge-list";
+import { ChampionBanner } from "@/components/league/champion-banner";
 import { CelebrateOnce } from "@/components/league/celebrate-once";
 import { GameName, RankBadge } from "@/components/league/bits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { addDays, formatDay, formatWeek, isPlainDate, weekStart } from "@/lib/da
 import { buildRecap } from "@/lib/scoring/recap";
 import { today as getToday } from "@/lib/server/clock";
 import { loadInsights } from "@/lib/server/insights";
+import { joinNames } from "@/lib/utils";
 import { requireLeague } from "@/lib/server/league";
 
 export const metadata: Metadata = { title: "Weekly recap" };
@@ -22,7 +24,7 @@ export default async function RecapPage({ params }: PageProps<"/l/[slug]/recap/[
   const { scores, days, weeks, badges, memberIds } = await loadInsights(ctx, today);
   const week = weeks.find((w) => w.weekStart === weekParam);
   const name = (id: string) => ctx.memberName.get(id) ?? "?";
-  const names = (ids: string[]) => ids.map(name).join(" & ");
+  const names = (ids: string[]) => joinNames(ids.map(name));
 
   const nav = (
     <div className="flex items-center gap-1">
@@ -73,9 +75,7 @@ export default async function RecapPage({ params }: PageProps<"/l/[slug]/recap/[
       {iWon && <CelebrateOnce storageKey={`dl-champ-${ctx.league.id}-${week.weekStart}`} />}
       <div className="flex items-center justify-between gap-2">
         <div>
-          <p className="text-accent text-xs font-semibold tracking-widest uppercase">
-            Weekly recap
-          </p>
+          <p className="text-accent text-xs font-semibold tracking-wide uppercase">Weekly recap</p>
           <h1 className="font-display text-2xl font-bold sm:text-3xl">
             {formatWeek(week.weekStart)}
           </h1>
@@ -83,26 +83,21 @@ export default async function RecapPage({ params }: PageProps<"/l/[slug]/recap/[
         {nav}
       </div>
 
-      <Card className="glow border-gold/40 overflow-hidden">
-        <div className="from-gold/20 via-gold/5 flex items-center gap-4 bg-gradient-to-r to-transparent p-5">
-          <Trophy className="text-gold size-12 shrink-0" aria-hidden />
-          <div>
-            <p className="text-gold text-xs font-semibold tracking-widest uppercase">
-              {recap.champions.length > 1
-                ? "Co-champions"
-                : recap.champions.length
-                  ? "Champion"
-                  : "No champion"}
-            </p>
-            <p className="font-display text-3xl font-bold" data-testid="recap-champion">
-              {recap.champions.length ? names(recap.champions) : "Nobody scored points"}
-            </p>
-            {recap.podium[0] && (
-              <p className="num text-muted-foreground text-sm">{recap.podium[0].points} points</p>
-            )}
-          </div>
-        </div>
-      </Card>
+      <ChampionBanner
+        label={
+          recap.champions.length > 1
+            ? "Co-champions"
+            : recap.champions.length
+              ? "Champion"
+              : "No champion"
+        }
+        names={recap.champions.length ? names(recap.champions) : "Nobody scored points"}
+        testId="recap-champion"
+      >
+        {recap.podium[0] && (
+          <span className="num text-base font-semibold">{recap.podium[0].points} points</span>
+        )}
+      </ChampionBanner>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
@@ -114,7 +109,7 @@ export default async function RecapPage({ params }: PageProps<"/l/[slug]/recap/[
               {recap.podium.map((p) => (
                 <li
                   key={p.memberId}
-                  className="bg-muted/40 flex items-center gap-2 rounded-lg px-2 py-2"
+                  className="bg-muted/40 flex items-center gap-2 rounded-md px-2 py-2"
                 >
                   <RankBadge rank={p.rank} />
                   <Link

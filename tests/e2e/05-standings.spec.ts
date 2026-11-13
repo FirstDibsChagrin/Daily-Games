@@ -136,5 +136,5 @@ test("weekly champion appears only once the week ends at midnight ET (Sunday -> 
   await page.goto(`/l/${slug}/champions`);
   await expect(page.getByTestId("trophy-counts")).toContainText("1");
   await page.goto(`/l/${slug}/recap`);
-  await expect(page.getByText("🏆 A")).toBeVisible();
+  await expect(page.getByText("Champion: A")).toBeVisible();
 });

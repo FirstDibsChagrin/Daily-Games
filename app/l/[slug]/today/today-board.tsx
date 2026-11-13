@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, Loader2, Trash2 } from "lucide-react";
+import { CalendarClock, Check, ExternalLink, Hourglass, Loader2, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -140,7 +140,7 @@ export function TodayBoard({
     });
     if (newFirsts.length) {
       const n = newFirsts.map((id) => games.find((g) => g.id === id)?.name).join(", ");
-      toast(`🥇 You're in 1st on ${n}!`);
+      toast.success(`You're in 1st on ${n}.`);
       void celebrate("first");
     }
     router.refresh();
@@ -188,14 +188,15 @@ export function TodayBoard({
   const doneCount = games.filter((g) => g.mine).length;
 
   return (
-    <div className="grid gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="grid gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-4">
         <div>
-          <h1 className="font-display text-2xl font-bold sm:text-3xl">
+          <h1 className="font-display text-[2rem] leading-none font-bold sm:text-[2.5rem]">
             {date === today ? "Today" : date === addDays(today, -1) ? "Yesterday" : formatDay(date)}
           </h1>
-          <p className="text-muted-foreground text-sm">
-            {formatDay(date, { year: true })} · <span className="num">{doneCount}</span>/
+          <p className="text-muted-foreground mt-1.5 text-sm">
+            {formatDay(date, { year: true })} ·{" "}
+            <span className="num text-foreground text-base font-semibold">{doneCount}</span> of{" "}
             {games.length} logged
           </p>
         </div>
@@ -208,14 +209,17 @@ export function TodayBoard({
             max={today}
             value={date}
             onChange={(e) => e.target.value && e.target.value <= today && go(e.target.value)}
-            className="border-input bg-card/60 text-foreground h-10 cursor-pointer rounded-lg border px-2 text-sm"
+            className="border-input bg-card text-foreground h-11 cursor-pointer rounded-md border px-2 text-sm"
             aria-label="Pick a date"
           />
         </div>
       </div>
 
-      {/* 7-day strip + date picker */}
-      <nav aria-label="Choose a day" className="grid grid-cols-7 gap-1 sm:flex sm:gap-1.5">
+      {/* Last 7 days */}
+      <nav
+        aria-label="Choose a day"
+        className="grid grid-cols-7 divide-x overflow-hidden rounded-md border sm:max-w-xl"
+      >
         {days.map((d) => {
           const active = d === date;
           return (
@@ -226,22 +230,29 @@ export function TodayBoard({
               aria-current={active ? "date" : undefined}
               aria-label={formatDay(d, { year: true })}
               className={cn(
-                "flex min-w-0 cursor-pointer flex-col items-center rounded-lg border px-1 py-1.5 text-[11px] transition-colors sm:min-w-14 sm:px-2 sm:text-xs",
+                "flex min-h-14 min-w-0 cursor-pointer flex-col items-center justify-center text-[11px] font-medium transition-colors",
                 active
-                  ? "glow border-ring bg-accent-soft text-accent font-semibold"
-                  : "bg-card/60 text-muted-foreground hover:bg-muted",
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted bg-card",
               )}
             >
-              <span>{d === today ? "Today" : weekdayShort(d)}</span>
-              <span className="num text-foreground text-base">{Number(d.slice(8))}</span>
+              <span className="uppercase">{d === today ? "Today" : weekdayShort(d)}</span>
+              <span
+                className={cn("num text-lg leading-tight font-bold", !active && "text-foreground")}
+              >
+                {Number(d.slice(8))}
+              </span>
             </button>
           );
         })}
       </nav>
 
       {date !== today && (
-        <p className="border-warning/40 bg-warning/10 text-warning rounded-lg border px-3 py-2 text-sm">
-          You&apos;re entering scores for <strong>{formatDay(date)}</strong>, not today.
+        <p className="border-warning text-foreground flex items-center gap-2 border-l-2 py-1 pl-3 text-sm">
+          <CalendarClock className="text-warning size-4 shrink-0" aria-hidden />
+          <span>
+            You&apos;re entering scores for <strong>{formatDay(date)}</strong>, not today.
+          </span>
         </p>
       )}
 
@@ -269,22 +280,27 @@ export function TodayBoard({
       <AnimatePresence>
         {dirtyGames.length > 0 && (
           <motion.div
-            initial={{ y: 40, opacity: 0 }}
+            initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            className="fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-30 flex justify-center px-4 md:bottom-6"
+            exit={{ y: 24, opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 px-4 pb-3 md:bottom-0 md:pb-6"
           >
-            <Button
-              size="lg"
-              className="glow w-full max-w-md"
-              disabled={savingAll}
-              onClick={() =>
-                startSaveAll(() => submit(dirtyGames.map((game) => ({ game, failed: false }))))
-              }
-            >
-              {savingAll ? <Loader2 className="animate-spin" /> : <Check />}
-              Save all ({dirtyGames.length})
-            </Button>
+            <div className="bg-card mx-auto flex max-w-md items-center gap-3 rounded-md border p-2 pl-4 shadow-lg">
+              <span className="text-sm">
+                <span className="num text-lg font-bold">{dirtyGames.length}</span> unsaved
+              </span>
+              <Button
+                className="ml-auto"
+                disabled={savingAll}
+                onClick={() =>
+                  startSaveAll(() => submit(dirtyGames.map((game) => ({ game, failed: false }))))
+                }
+              >
+                {savingAll ? <Loader2 className="animate-spin" /> : <Check />}
+                Save all ({dirtyGames.length})
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -320,41 +336,40 @@ function GameCard({
   const errId = `err-${g.id}`;
   const saved = g.mine;
   return (
-    <Card className="overflow-hidden" data-testid={`game-card-${g.name}`}>
-      <div
-        className="h-1"
-        style={{ background: `linear-gradient(90deg, ${g.color}, transparent)` }}
-        aria-hidden
-      />
+    <Card className="flex flex-col" data-testid={`game-card-${g.name}`}>
       <div className="grid gap-3 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h2 className="font-display flex min-w-0 items-center gap-2 text-lg font-semibold">
-            <GameDot color={g.color} />
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-display flex min-w-0 items-center gap-2 text-xl leading-tight font-bold">
+            <GameDot color={g.color} className="size-3" />
             <span className="truncate">{g.name}</span>
             {g.url && (
               <a
                 href={g.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground rounded"
+                className="text-muted-foreground hover:text-foreground -m-1 rounded-sm p-1"
                 aria-label={`Play ${g.name} (opens in a new tab)`}
               >
                 <ExternalLink className="size-4" />
               </a>
             )}
           </h2>
-          {saved && !dirty && (
-            <span className="bg-success/15 text-success flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
-              <Check className="size-3.5" aria-hidden /> Saved{" "}
-              <span className="num">{formatValue(g, saved.value, saved.failed)}</span>
+          {saved && !dirty ? (
+            <span className="text-success flex shrink-0 items-center gap-1 text-sm font-semibold">
+              <Check className="size-4" aria-hidden /> Saved{" "}
+              <span className="num text-foreground text-lg leading-none">
+                {formatValue(g, saved.value, saved.failed)}
+              </span>
             </span>
+          ) : (
+            <span className="text-muted-foreground shrink-0 text-xs">Not logged</span>
           )}
         </div>
 
-        <div id={hintId} className="text-sm">
+        <div id={hintId} className="text-[15px] leading-snug">
           <p>{g.entry_prompt}</p>
           {g.entry_example && (
-            <p className="text-muted-foreground mt-0.5 text-xs">{g.entry_example}</p>
+            <p className="text-muted-foreground mt-0.5 text-[13px]">{g.entry_example}</p>
           )}
         </div>
 
@@ -388,7 +403,7 @@ function GameCard({
               aria-describedby={`${hintId}${error ? ` ${errId}` : ""}`}
               aria-invalid={!!error}
               className={cn(
-                "num border-input bg-background/60 placeholder:text-muted-foreground/50 focus-visible:border-ring focus-visible:ring-ring/40 h-12 w-full rounded-lg border px-3 text-2xl font-semibold outline-none focus-visible:ring-2",
+                "num border-input bg-background placeholder:text-muted-foreground/45 focus-visible:border-ring focus-visible:ring-ring/40 h-12 w-full rounded-md border px-3 text-[26px] font-bold outline-none focus-visible:ring-2",
                 g.unit_label && "pr-16",
                 error && "border-destructive",
               )}
@@ -434,25 +449,27 @@ function GameCard({
             </Button>
           )}
         </form>
-        <div className="flex min-h-5 items-center justify-between gap-2">
-          <FormError message={error} className="text-xs" />
-          <span id={errId} className="sr-only" aria-live="polite">
-            {error}
-          </span>
-          {saved && (
-            <button
-              type="button"
-              onClick={onDelete}
-              disabled={busy}
-              className="text-muted-foreground hover:text-destructive ml-auto flex cursor-pointer items-center gap-1 rounded text-xs"
-            >
-              <Trash2 className="size-3.5" aria-hidden /> Clear my score
-            </button>
-          )}
-        </div>
-
-        <DayBoard game={g} meId={meId} />
+        {(error || saved) && (
+          <div className="flex items-center justify-between gap-2">
+            <FormError message={error} className="text-[13px]" />
+            <span id={errId} className="sr-only" aria-live="polite">
+              {error}
+            </span>
+            {saved && (
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={busy}
+                className="text-muted-foreground hover:text-destructive -my-2 ml-auto flex min-h-9 cursor-pointer items-center gap-1 rounded-sm px-1 text-[13px]"
+              >
+                <Trash2 className="size-3.5" aria-hidden /> Clear my score
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
+      <DayBoard game={g} meId={meId} />
     </Card>
   );
 }
@@ -460,28 +477,31 @@ function GameCard({
 function DayBoard({ game: g, meId }: { game: TodayGame; meId: string }) {
   if (g.status === "empty") {
     return (
-      <p className="text-muted-foreground border-t pt-3 text-sm">No scores yet. Be the first!</p>
+      <p className="text-muted-foreground mt-auto border-t px-4 py-3 text-sm">
+        No scores yet. Be the first.
+      </p>
     );
   }
   return (
-    <div className="border-t pt-3">
+    <div className="mt-auto border-t">
       {g.status === "waiting" && (
-        <p className="text-warning mb-2 text-xs font-medium">
-          ⏳ Waiting for a second player — no points yet.
+        <p className="text-warning flex items-center gap-1.5 px-4 pt-3 text-[13px] font-medium">
+          <Hourglass className="size-3.5" aria-hidden /> Waiting for a second player. No points yet.
         </p>
       )}
-      <ol className="grid gap-1" aria-label={`${g.name} results`}>
+      <ol className="px-2 py-1.5" aria-label={`${g.name} results`}>
         <AnimatePresence initial={false}>
           {g.entries.map((e) => (
             <motion.li
               key={e.memberId}
               layout
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className={cn(
-                "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm",
-                e.memberId === meId ? "bg-accent-soft ring-ring/40 ring-1" : "bg-muted/40",
+                "flex min-h-10 items-center gap-2.5 rounded-sm px-2 text-sm",
+                e.memberId === meId && "bg-accent-soft",
               )}
             >
               <RankBadge
@@ -490,11 +510,13 @@ function DayBoard({ game: g, meId }: { game: TodayGame; meId: string }) {
               />
               <span className="min-w-0 flex-1 truncate font-medium">
                 {e.name}
-                {e.memberId === meId && <span className="text-accent ml-1 text-xs">(you)</span>}
+                {e.memberId === meId && (
+                  <span className="text-muted-foreground ml-1.5 text-xs font-normal"> you</span>
+                )}
               </span>
-              <span className="num text-lg font-semibold">{formatValue(g, e.value, e.failed)}</span>
+              <span className="num text-xl font-bold">{formatValue(g, e.value, e.failed)}</span>
               {g.status === "scored" && (
-                <span className="num text-accent w-10 text-right text-sm font-semibold">
+                <span className="num text-accent w-9 text-right text-base font-semibold">
                   +{e.points}
                 </span>
               )}

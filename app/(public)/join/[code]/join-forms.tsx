@@ -34,10 +34,10 @@ export function JoinForms({
         setPin("");
       }}
       className={cn(
-        "flex-1 cursor-pointer rounded-md px-3 py-2 text-sm font-semibold transition-colors",
+        "flex h-11 flex-1 cursor-pointer items-center justify-center border-r px-3 text-sm font-semibold transition-colors last:border-r-0",
         mode === m
-          ? "bg-card text-foreground shadow"
-          : "text-muted-foreground hover:text-foreground",
+          ? "bg-foreground text-background"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       {label}
@@ -50,7 +50,7 @@ export function JoinForms({
         <div
           role="tablist"
           aria-label="How are you joining?"
-          className="bg-muted flex gap-1 rounded-lg p-1"
+          className="flex overflow-hidden rounded-md border"
         >
           {tab("new", "I'm new here")}
           {tab("existing", "I've played before")}

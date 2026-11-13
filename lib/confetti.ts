@@ -5,7 +5,7 @@ export async function celebrate(kind: "first" | "champion" = "first") {
   if (typeof window === "undefined") return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const confetti = (await import("canvas-confetti")).default;
-  const colors = ["#8b5cf6", "#a78bfa", "#facc15", "#22d3ee", "#f472b6"];
+  const colors = ["#c6ef3a", "#e9c54a", "#f1efe6", "#16150f"];
   if (kind === "champion") {
     const end = Date.now() + 1200;
     const frame = () => {

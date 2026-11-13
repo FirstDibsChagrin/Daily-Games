@@ -35,7 +35,7 @@ export function PinInput(
         e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
         props.onChange?.(e);
       }}
-      className={cn("num w-32 text-center text-xl tracking-[0.5em]", props.className)}
+      className={cn("w-32 text-center font-mono text-xl tracking-[0.4em]", props.className)}
     />
   );
 }

@@ -123,7 +123,7 @@ function JoinCodeCard({ slug, origin, code }: { slug: string; origin: string; co
       </CardHeader>
       <CardContent className="grid gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="num bg-background/50 min-w-36 rounded-lg border px-3 py-2 text-2xl font-bold tracking-[0.25em]">
+          <span className="min-w-36 rounded-md border px-3 py-2 font-mono text-2xl font-semibold tracking-[0.18em]">
             {shown ? code : "••••••"}
           </span>
           <Button variant="ghost" size="sm" onClick={() => setShown((s) => !s)}>
@@ -294,7 +294,7 @@ function MembersCard({ slug, members, meId }: { slug: string; members: M[]; meId
           {members.map((m) => (
             <li
               key={m.id}
-              className="flex flex-wrap items-center gap-2 rounded-lg border p-2"
+              className="flex flex-wrap items-center gap-2 rounded-md border p-2"
               data-testid={`member-${m.name}`}
             >
               <span className="min-w-0 flex-1 font-medium">
@@ -302,7 +302,7 @@ function MembersCard({ slug, members, meId }: { slug: string; members: M[]; meId
                 {m.isCreator && (
                   <Crown className="text-gold ml-1 inline size-3.5" aria-label="creator" />
                 )}
-                {m.id === meId && <span className="text-accent ml-1 text-xs">(you)</span>}
+                {m.id === meId && <span className="text-accent ml-1 text-xs"> (you)</span>}
               </span>
               <Button size="sm" variant="ghost" onClick={() => open("pin", m)}>
                 <KeyRound /> Reset PIN

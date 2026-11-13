@@ -44,7 +44,7 @@ export default async function StatsPage({ params }: PageProps<"/l/[slug]/stats">
         subtitle="All-time numbers, streaks and badges. Tap a player for their full profile."
       />
       <div className="mb-4 grid gap-3 sm:grid-cols-2">
-        <Link href={`/l/${slug}/champions`} className="group rounded-xl">
+        <Link href={`/l/${slug}/champions`} className="group rounded-md">
           <Card className="group-hover:border-ring/60 flex items-center gap-3 p-4 transition-colors">
             <Trophy className="text-gold size-8" aria-hidden />
             <div className="flex-1">
@@ -54,7 +54,7 @@ export default async function StatsPage({ params }: PageProps<"/l/[slug]/stats">
             <ChevronRight className="text-muted-foreground" aria-hidden />
           </Card>
         </Link>
-        <Link href={`/l/${slug}/recap`} className="group rounded-xl">
+        <Link href={`/l/${slug}/recap`} className="group rounded-md">
           <Card className="group-hover:border-ring/60 flex items-center gap-3 p-4 transition-colors">
             <Newspaper className="text-accent size-8" aria-hidden />
             <div className="flex-1">

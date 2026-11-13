@@ -13,11 +13,11 @@ test("creator manages games: checklist, custom, edit, reorder, archive/restore, 
   const t0 = Date.now();
   await addCatalogGames(page, slug, ["Wordle", "Connections", "Krillion", "Waffle", "Chainle"]);
   expect(Date.now() - t0).toBeLessThan(60_000);
+  // Owner-confirmed scoring for the former "unverified" games
+  await expect(page.locator('[data-testid="catalog-list"]').getByText("unverified")).toHaveCount(0);
   await expect(
-    page
-      .locator('[data-testid="catalog-list"] li', { hasText: "Noillirk" })
-      .getByText("unverified"),
-  ).toBeVisible();
+    page.locator('[data-testid="catalog-list"] li', { hasText: "Daily Holes" }),
+  ).toContainText("relative to par");
 
   // Custom game
   await page.click("text=Create custom game");
@@ -67,6 +67,9 @@ test("creator manages games: checklist, custom, edit, reorder, archive/restore, 
   await page.goto(`/l/${slug}/league`);
   const code = (await page.getByTestId("join-code").textContent())!.trim();
   const { ctx, page: tj } = await joinLeague(browser, code, "TJ", "1111");
+  // Every member can see and share the join code
+  await tj.goto(`/l/${slug}/league`);
+  await expect(tj.getByTestId("join-code")).toHaveText(code);
   await tj.goto(`/l/${slug}/settings/games`);
   await expect(tj).toHaveURL(/\/league$/);
   await expect(tj.getByRole("link", { name: /Manage games/ })).toHaveCount(0);

@@ -37,7 +37,7 @@ export function CodeForm() {
           value={code}
           onChange={(e) => setCode(normalizeCode(e.target.value))}
           placeholder="K7QX2M"
-          className="num h-14 text-center text-2xl tracking-[0.35em] uppercase"
+          className="h-14 text-center font-mono text-2xl tracking-[0.3em] uppercase"
         />
       </div>
       <FormError message={error} />

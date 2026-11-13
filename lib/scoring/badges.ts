@@ -10,48 +10,42 @@ export interface BadgeDef {
   key: string;
   name: string;
   description: string;
-  icon: string; // emoji, always shown alongside text
 }
 
 export const BADGES: BadgeDef[] = [
-  { key: "rookie", name: "Rookie", description: "Logged a first score", icon: "🐣" },
-  { key: "century", name: "Century", description: "Logged 100 scores", icon: "💯" },
-  { key: "streak_7", name: "Hot Streak 7", description: "7-day participation streak", icon: "🔥" },
+  { key: "rookie", name: "Rookie", description: "Logged a first score" },
+  { key: "century", name: "Century", description: "Logged 100 scores" },
+  { key: "streak_7", name: "Hot Streak 7", description: "7-day participation streak" },
   {
     key: "streak_30",
     name: "Hot Streak 30",
     description: "30-day participation streak",
-    icon: "🔥",
   },
   {
     key: "streak_100",
     name: "Hot Streak 100",
     description: "100-day participation streak",
-    icon: "☄️",
   },
-  { key: "champ_1", name: "Weekly Champion", description: "Won a week", icon: "🏆" },
-  { key: "champ_3", name: "Weekly Champion ×3", description: "Won 3 weeks", icon: "🏆" },
-  { key: "champ_5", name: "Weekly Champion ×5", description: "Won 5 weeks", icon: "🏆" },
-  { key: "champ_10", name: "Weekly Champion ×10", description: "Won 10 weeks", icon: "👑" },
+  { key: "champ_1", name: "Weekly Champion", description: "Won a week" },
+  { key: "champ_3", name: "Weekly Champion ×3", description: "Won 3 weeks" },
+  { key: "champ_5", name: "Weekly Champion ×5", description: "Won 5 weeks" },
+  { key: "champ_10", name: "Weekly Champion ×10", description: "Won 10 weeks" },
   {
     key: "day_sweep",
     name: "Day Sweep",
     description: "Won every game you played in a day (3+ games, each with 2+ players)",
-    icon: "🧹",
   },
   {
     key: "completionist",
     name: "Completionist",
     description: "Played every active game in one day (4+ games)",
-    icon: "✅",
   },
-  { key: "specialist", name: "Specialist", description: "10 wins in a single game", icon: "🎯" },
-  { key: "podium_regular", name: "Podium Regular", description: "50 top-3 finishes", icon: "🥉" },
+  { key: "specialist", name: "Specialist", description: "10 wins in a single game" },
+  { key: "podium_regular", name: "Podium Regular", description: "50 top-3 finishes" },
   {
     key: "comeback_kid",
     name: "Comeback Kid",
     description: "Last place one week, champion the next",
-    icon: "🚀",
   },
 ];
 

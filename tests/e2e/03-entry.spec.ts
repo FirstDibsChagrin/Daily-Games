@@ -43,9 +43,11 @@ test("entry screen: exact instructions, validation, m:ss, X only where allowed, 
   await w.locator("input").fill("3.5");
   await w.getByRole("button", { name: "Save" }).click();
   await expect(w.locator("p[role=alert]")).toHaveText("Enter a whole number.");
-  await card(page, "Noillirk").locator("input").fill("14.5");
+  await card(page, "Noillirk").locator("input").fill("100001");
   await card(page, "Noillirk").getByRole("button", { name: "Save" }).click();
-  await expect(card(page, "Noillirk").locator("p[role=alert]")).toContainText("between 0 and 14");
+  await expect(card(page, "Noillirk").locator("p[role=alert]")).toContainText(
+    "between 0 and 100000",
+  );
 
   // X only where allowed
   await expect(card(page, "Wordle").getByRole("button", { name: /^X/ })).toHaveCount(1);
@@ -55,7 +57,7 @@ test("entry screen: exact instructions, validation, m:ss, X only where allowed, 
   // Valid entries: golf-style +2, decimal, time typed as digits -> m:ss
   await enterScore(page, "Minute Cryptic", "+2");
   await expect(card(page, "Minute Cryptic").getByText("Saved +2")).toBeVisible();
-  await enterScore(page, "Noillirk", "9.4");
+  await enterScore(page, "Noillirk", "8200");
   const mini = card(page, "Mini");
   await mini.locator("input").pressSequentially("235");
   await expect(mini.locator("input")).toHaveValue("2:35");

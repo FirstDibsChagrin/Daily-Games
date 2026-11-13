@@ -1,3 +1,4 @@
+import { Puzzle } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AutoRefresh } from "@/components/league/auto-refresh";
@@ -21,7 +22,7 @@ export default async function TodayPage({ params, searchParams }: PageProps<"/l/
 
   if (ctx.activeGames.length === 0) {
     return (
-      <EmptyState icon="🧩" title="No games yet">
+      <EmptyState icon={<Puzzle />} title="No games yet">
         {ctx.me.isCreator ? (
           <>
             <p>Pick the daily puzzles your league plays.</p>

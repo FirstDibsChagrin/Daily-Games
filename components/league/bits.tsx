@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 
+/** Team-color swatch for a game. Never the only signal: always next to the name. */
 export function GameDot({ color, className }: { color: string; className?: string }) {
   return (
     <span
       aria-hidden
-      className={cn("inline-block size-3 shrink-0 rounded-full ring-2 ring-white/10", className)}
-      style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}66` }}
+      className={cn("inline-block size-2.5 shrink-0 rounded-[2px]", className)}
+      style={{ backgroundColor: color }}
     />
   );
 }
@@ -27,9 +28,6 @@ export function GameName({
   );
 }
 
-const MEDALS = ["🥇", "🥈", "🥉"];
-const ORD = ["1st", "2nd", "3rd"];
-
 export function ordinal(n: number): string {
   const s = n % 100;
   if (s >= 11 && s <= 13) return `${n}th`;
@@ -45,7 +43,13 @@ export function ordinal(n: number): string {
   }
 }
 
-/** Rank with a medal for 1–3; text label is always present (never color alone). */
+const PODIUM = [
+  "bg-gold-soft text-gold border-gold/50",
+  "bg-silver-soft text-silver border-silver/40",
+  "bg-bronze-soft text-bronze border-bronze/45",
+];
+
+/** Rank chip. Podium places get a tinted chip; the numeral is always shown (never color alone). */
 export function RankBadge({
   rank,
   failed,
@@ -59,34 +63,26 @@ export function RankBadge({
     return (
       <span
         className={cn(
-          "num text-muted-foreground inline-flex w-9 justify-center text-sm",
+          "num text-muted-foreground inline-flex w-7 justify-center text-base",
           className,
         )}
         aria-label="did not finish"
       >
-        —
-      </span>
-    );
-  }
-  if (rank <= 3) {
-    return (
-      <span
-        className={cn("inline-flex w-9 items-center justify-center text-lg", className)}
-        title={ORD[rank - 1]}
-      >
-        <span aria-hidden>{MEDALS[rank - 1]}</span>
-        <span className="sr-only">{ORD[rank - 1]}</span>
+        –
       </span>
     );
   }
   return (
     <span
       className={cn(
-        "num text-muted-foreground inline-flex w-9 justify-center text-sm font-semibold",
+        "num inline-flex h-6 min-w-7 items-center justify-center rounded-sm px-1 text-[15px] leading-none font-bold",
+        rank <= 3 ? cn("border", PODIUM[rank - 1]) : "text-muted-foreground",
         className,
       )}
+      title={`${ordinal(rank)} place`}
     >
-      {ordinal(rank)}
+      <span aria-hidden>{rank}</span>
+      <span className="sr-only">{ordinal(rank)}</span>
     </span>
   );
 }
@@ -105,16 +101,16 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center gap-2 rounded-xl border border-dashed p-8 text-center",
+        "flex flex-col items-start gap-2 rounded-md border px-5 py-8 sm:items-center sm:text-center",
         className,
       )}
     >
       {icon && (
-        <div className="text-3xl" aria-hidden>
+        <div className="text-muted-foreground [&_svg]:size-7" aria-hidden>
           {icon}
         </div>
       )}
-      <p className="font-display text-lg font-semibold">{title}</p>
+      <p className="font-display text-xl font-bold">{title}</p>
       {children && <div className="text-muted-foreground max-w-sm text-sm">{children}</div>}
     </div>
   );
@@ -124,16 +120,21 @@ export function PageTitle({
   title,
   subtitle,
   actions,
+  kicker,
 }: {
   title: string;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
+  kicker?: string;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b pb-4">
       <div className="min-w-0">
-        <h1 className="font-display text-2xl font-bold sm:text-3xl">{title}</h1>
-        {subtitle && <div className="text-muted-foreground mt-0.5 text-sm">{subtitle}</div>}
+        {kicker && <p className="kicker text-accent mb-1">{kicker}</p>}
+        <h1 className="font-display text-[2rem] leading-none font-bold sm:text-[2.5rem]">
+          {title}
+        </h1>
+        {subtitle && <div className="text-muted-foreground mt-1.5 text-sm">{subtitle}</div>}
       </div>
       {actions}
     </div>

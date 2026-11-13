@@ -178,7 +178,7 @@ function SuggestionsInbox({
               (c) => norm(c.name) === norm(s.name) || norm(c.key) === norm(s.name),
             );
             return (
-              <li key={s.id} className="rounded-lg border p-3" data-testid="suggestion">
+              <li key={s.id} className="rounded-md border p-3" data-testid="suggestion">
                 <p className="font-semibold">{s.name}</p>
                 <p className="text-muted-foreground text-xs">
                   Suggested by {s.member_name ?? "a former member"}
@@ -299,7 +299,7 @@ function ActiveGames({
       </CardHeader>
       <CardContent>
         {games.length === 0 ? (
-          <p className="text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+          <p className="text-muted-foreground rounded-md border p-6 text-center text-sm">
             No games yet. Tick some from the catalog to get started.
           </p>
         ) : (
@@ -358,7 +358,7 @@ function SortableGameRow({
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "bg-card min-w-0 rounded-lg border",
+        "bg-card min-w-0 rounded-md border",
         isDragging && "ring-ring relative z-10 shadow-xl ring-2",
       )}
       data-testid={`game-row-${g.name}`}
@@ -517,7 +517,7 @@ function CatalogPicker({
               <li
                 key={c.key}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-2 py-2",
+                  "flex items-center gap-3 rounded-md px-2 py-2",
                   !inLeague && "hover:bg-muted/60",
                 )}
               >
@@ -679,7 +679,7 @@ function ArchivedGames({
       <CardContent>
         <ul className="grid gap-2" data-testid="archived-games">
           {games.map((g) => (
-            <li key={g.id} className="flex items-center gap-2 rounded-lg border p-2">
+            <li key={g.id} className="flex items-center gap-2 rounded-md border p-2">
               <GameDot color={g.color} />
               <span className="text-muted-foreground min-w-0 flex-1 truncate font-medium">
                 {g.name} <span className="text-xs">· {scoreCounts[g.id] ?? 0} scores</span>

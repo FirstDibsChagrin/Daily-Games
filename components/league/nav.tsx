@@ -22,7 +22,7 @@ function useActive(slug: string) {
 export function TopNav({ slug }: { slug: string }) {
   const isActive = useActive(slug);
   return (
-    <nav aria-label="League" className="hidden items-center gap-1 md:flex">
+    <nav aria-label="League" className="hidden h-full items-stretch md:flex">
       {TABS.map((t) => {
         const active = isActive(t.match);
         return (
@@ -31,13 +31,12 @@ export function TopNav({ slug }: { slug: string }) {
             href={`/l/${slug}/${t.seg}`}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+              "font-display flex items-center border-b-2 px-3.5 text-[15px] font-semibold tracking-wide uppercase transition-colors",
               active
-                ? "bg-accent-soft text-accent"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ? "border-accent text-foreground"
+                : "text-muted-foreground hover:text-foreground border-transparent",
             )}
           >
-            <t.icon className="size-4" aria-hidden />
             {t.label}
           </Link>
         );
@@ -51,7 +50,7 @@ export function BottomTabs({ slug }: { slug: string }) {
   return (
     <nav
       aria-label="League"
-      className="bg-background/90 pb-safe fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-lg md:hidden"
+      className="bg-background pb-safe fixed inset-x-0 bottom-0 z-40 border-t md:hidden"
     >
       <ul className="mx-auto grid max-w-md grid-cols-4">
         {TABS.map((t) => {
@@ -62,18 +61,14 @@ export function BottomTabs({ slug }: { slug: string }) {
                 href={`/l/${slug}/${t.seg}`}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold transition-colors",
-                  active ? "text-accent" : "text-muted-foreground",
+                  "relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors",
+                  active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
-                <span
-                  className={cn(
-                    "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
-                    active && "bg-accent-soft",
-                  )}
-                >
-                  <t.icon className="size-5" aria-hidden />
-                </span>
+                {active && (
+                  <span aria-hidden className="bg-accent absolute inset-x-6 top-0 h-0.5" />
+                )}
+                <t.icon className="size-5" strokeWidth={active ? 2.25 : 1.75} aria-hidden />
                 {t.label}
               </Link>
             </li>

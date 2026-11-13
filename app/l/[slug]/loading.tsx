@@ -12,7 +12,7 @@ export default function Loading() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-56 rounded-xl" />
+          <Skeleton key={i} className="h-56 rounded-md" />
         ))}
       </div>
       <span className="sr-only">Loading…</span>

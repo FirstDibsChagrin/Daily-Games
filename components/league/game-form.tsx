@@ -244,7 +244,7 @@ export function GameForm({
           </NativeSelect>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 rounded-lg border p-3">
+      <div className="flex items-center justify-between gap-3 rounded-md border p-3">
         <div>
           <Label htmlFor={id("fail")}>Allow “X / didn&apos;t finish”</Label>
           <p className="text-muted-foreground mt-1 text-xs">
@@ -287,7 +287,7 @@ export function GameForm({
         </div>
       </fieldset>
       {scoringChanged && (
-        <p className="border-warning/40 bg-warning/10 text-warning flex items-start gap-2 rounded-lg border p-3 text-sm">
+        <p className="border-warning/40 bg-warning/10 text-warning flex items-start gap-2 rounded-md border p-3 text-sm">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
           This game already has scores. Changing how it&apos;s scored will recalculate every past
           result and standing. Existing scores outside the new range are kept as-is.

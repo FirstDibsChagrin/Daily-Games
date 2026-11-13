@@ -1,4 +1,5 @@
 import { CalendarDays, Crown, Trophy } from "lucide-react";
+import { ChampionBanner } from "@/components/league/champion-banner";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AutoRefresh } from "@/components/league/auto-refresh";
@@ -55,7 +56,7 @@ export default async function StandingsPage({
     return (
       <>
         <PageTitle title="Standings" />
-        <EmptyState icon="🏆" title="No games yet">
+        <EmptyState icon={<Trophy />} title="No games yet">
           Standings appear once the league has games and scores.
         </EmptyState>
       </>
@@ -108,29 +109,24 @@ export default async function StandingsPage({
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr] lg:items-start">
         <div className="grid gap-4">
           {champions.length > 0 && (
-            <Card className="glow border-gold/40 overflow-hidden">
+            <>
               {iWon && <CelebrateOnce storageKey={`dl-champ-${ctx.league.id}-${period.start}`} />}
-              <div className="from-gold/15 flex items-center gap-4 bg-gradient-to-r to-transparent p-4">
-                <Trophy className="text-gold size-10 shrink-0" aria-hidden />
-                <div>
-                  <p className="text-gold text-xs font-semibold tracking-widest uppercase">
-                    Weekly {champions.length > 1 ? "co-champions" : "champion"}
-                  </p>
-                  <p className="font-display text-2xl font-bold" data-testid="week-champion">
-                    {champions.map((id) => ctx.memberName.get(id)).join(" & ")}
-                  </p>
-                  <Link
-                    href={`/l/${slug}/recap/${period.start}`}
-                    className="text-accent text-sm font-semibold hover:underline"
-                  >
-                    See the weekly recap →
-                  </Link>
-                </div>
-              </div>
-            </Card>
+              <ChampionBanner
+                label={`Weekly ${champions.length > 1 ? "co-champions" : "champion"}`}
+                names={champions.map((id) => ctx.memberName.get(id)).join(" & ")}
+                testId="week-champion"
+              >
+                <Link
+                  href={`/l/${slug}/recap/${period.start}`}
+                  className="text-foreground font-semibold underline underline-offset-4"
+                >
+                  Read the weekly recap
+                </Link>
+              </ChampionBanner>
+            </>
           )}
           {weekDone && !game && champions.length === 0 && (
-            <p className="text-muted-foreground rounded-lg border border-dashed p-3 text-sm">
+            <p className="text-muted-foreground rounded-md border p-3 text-sm">
               No points this week, so no champion.
             </p>
           )}
@@ -259,7 +255,7 @@ export default async function StandingsPage({
                     <li key={`${d.date}-${d.gameId}`}>
                       <Link
                         href={`/l/${slug}/day?date=${d.date}`}
-                        className="hover:bg-muted flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm"
+                        className="hover:bg-muted flex items-center gap-2 rounded-md px-2 py-1.5 text-sm"
                       >
                         <span className="text-muted-foreground w-14 shrink-0 text-xs">
                           {formatShort(d.date)}

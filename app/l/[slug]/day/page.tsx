@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import { CalendarX, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AutoRefresh } from "@/components/league/auto-refresh";
@@ -76,7 +76,7 @@ export default async function DayPage({ params, searchParams }: PageProps<"/l/[s
       />
 
       {played.length === 0 ? (
-        <EmptyState icon="📅" title="No scores this day">
+        <EmptyState icon={<CalendarX />} title="No scores this day">
           Nobody logged anything for {formatDay(date)}.
         </EmptyState>
       ) : (
@@ -90,7 +90,7 @@ export default async function DayPage({ params, searchParams }: PageProps<"/l/[s
             {results.map(({ game: g, result: r }) => (
               <div
                 key={g.id}
-                className="bg-card/80 min-w-40 shrink-0 rounded-xl border p-3"
+                className="bg-card min-w-40 shrink-0 rounded-md border p-3"
                 style={{ borderTopColor: g.color, borderTopWidth: 3 }}
               >
                 <GameName
@@ -101,10 +101,10 @@ export default async function DayPage({ params, searchParams }: PageProps<"/l/[s
                 <p className="font-display mt-1 truncate text-lg font-bold">
                   {r.status === "scored"
                     ? r.winners.length
-                      ? `👑 ${r.winners.map((id) => ctx.memberName.get(id)).join(" & ")}`
+                      ? r.winners.map((id) => ctx.memberName.get(id)).join(" & ")
                       : "No winner"
                     : r.status === "waiting"
-                      ? "⏳ Waiting"
+                      ? "Waiting"
                       : "—"}
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default async function DayPage({ params, searchParams }: PageProps<"/l/[s
                       <p className="text-muted-foreground text-sm">No scores.</p>
                     )}
                     {r.status === "waiting" && (
-                      <p className="text-warning mb-2 text-xs">⏳ Waiting for a second player.</p>
+                      <p className="text-warning mb-2 text-xs">Waiting for a second player.</p>
                     )}
                     <ol className="grid gap-1">
                       {r.entries.map((e) => (
